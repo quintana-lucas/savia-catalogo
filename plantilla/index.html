@@ -85,8 +85,10 @@
   .grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
   .tarjeta {
     background: var(--papel); border-radius: var(--radio); box-shadow: var(--sombra);
-    overflow: hidden; display: flex; flex-direction: column;
+    overflow: hidden; display: flex; flex-direction: column; position: relative;
   }
+  /* Ícono "i" y globo con la descripción: solo en celular, donde la descripción se oculta */
+  .btn-info, .globo-info { display: none; }
   .foto {
     aspect-ratio: 4 / 3; display: grid; place-items: center;
     font-size: 4rem; background: linear-gradient(160deg, #f8faf4, #e8eedd);
@@ -148,6 +150,23 @@
     .cuerpo { padding: 10px 12px 12px; }
     .cuerpo h3 { font-size: 1rem; }
     .desc { display: none; }
+    .btn-info {
+      display: grid; place-items: center; position: absolute; top: 8px; right: 8px; z-index: 3;
+      width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--linea);
+      background: var(--papel); color: var(--verde); cursor: pointer; padding: 0;
+      box-shadow: 0 1px 3px rgba(31,42,30,.15);
+    }
+    .btn-info[aria-expanded="true"] { background: var(--verde); color: #fff; border-color: var(--verde); }
+    .globo-info {
+      position: absolute; top: 46px; left: 8px; right: 8px; z-index: 2;
+      background: var(--tinta); color: #fff; border-radius: 10px; padding: 10px 12px;
+      font-size: .85rem; line-height: 1.35; box-shadow: 0 6px 18px rgba(0,0,0,.2);
+    }
+    .globo-info::before {  /* flechita que apunta al ícono */
+      content: ""; position: absolute; top: -6px; right: 14px;
+      border: 6px solid transparent; border-top: 0; border-bottom-color: var(--tinta);
+    }
+    .globo-info.visible { display: block; }
     .pie { flex-direction: column; align-items: stretch; }
     .pie .btn, .cantidad { justify-content: space-between; }
     .pie [data-ctrl] { display: flex; justify-content: center; }  /* botón, cantidad y "Sin stock" centrados en la tarjeta */
@@ -261,11 +280,28 @@
     </div>`;
   }
 
+  let contadorGlobos = 0;
+  function cerrarGlobos(excepto) {
+    document.querySelectorAll(".btn-info[aria-expanded='true']").forEach(b => {
+      if (b === excepto) return;
+      b.setAttribute("aria-expanded", "false");
+      document.getElementById(b.dataset.info).classList.remove("visible");
+    });
+  }
+
   function tarjeta(p) {
     const precio = p.precio != null
       ? `<span class="precio">${pesos(p.precio)}</span>`
       : `<span class="precio consultar">Consultar</span>`;
+    const idGlobo = "info-" + (++contadorGlobos);
+    const info = p.descripcion
+      ? `<button class="btn-info" type="button" data-info="${idGlobo}" aria-expanded="false" aria-controls="${idGlobo}" aria-label="Ver descripción de ${esc(p.nombre)}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11 10h2v8h-2zm0-4h2v2h-2z"/></svg>
+        </button>
+        <div class="globo-info" id="${idGlobo}" role="note">${esc(p.descripcion)}</div>`
+      : "";
     return `<article class="tarjeta ${p.disponible ? "" : "agotado"}">
+      ${info}
       <div class="foto">${fotoPara(p)}</div>
       <div class="cuerpo">
         <h3>${esc(p.nombre)}</h3>
@@ -311,6 +347,14 @@
   }
 
   document.getElementById("catalogo").addEventListener("click", e => {
+    const info = e.target.closest("[data-info]");
+    if (info) {
+      const abrir = info.getAttribute("aria-expanded") !== "true";
+      cerrarGlobos(info);
+      info.setAttribute("aria-expanded", abrir);
+      document.getElementById(info.dataset.info).classList.toggle("visible", abrir);
+      return;
+    }
     const mas = e.target.closest("[data-mas]"), menos = e.target.closest("[data-menos]");
     if (!mas && !menos) return;
     const id = (mas || menos).dataset.mas ?? (mas || menos).dataset.menos;
@@ -320,6 +364,9 @@
     document.querySelector(`[data-ctrl="${CSS.escape(id)}"]`).innerHTML = controles(porId[id]);
     actualizarPedido();
   });
+  // Tocar fuera del ícono o apretar Escape cierra el globo abierto
+  document.addEventListener("click", e => { if (!e.target.closest("[data-info]")) cerrarGlobos(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarGlobos(); });
   document.getElementById("vaciar").onclick = () => { carrito = {}; guardar(); pintar(); actualizarPedido(); };
 
   pintar();
