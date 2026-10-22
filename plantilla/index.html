@@ -90,12 +90,13 @@
   /* Ícono "i" y globo con la descripción: solo en celular, donde la descripción se oculta */
   .btn-info, .globo-info { display: none; }
   .foto {
-    aspect-ratio: 4 / 3; display: grid; place-items: center;
+    aspect-ratio: 4 / 3; display: grid; place-items: center; position: relative; overflow: hidden; flex-shrink: 0;
     font-size: 4rem; background: linear-gradient(160deg, #f8faf4, #e8eedd);
   }
   /* Las fotos son de paquetes enteros: se muestran completas sobre blanco, sin recortar. */
   .foto:has(img) { background: #fff; }
-  .foto img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+  /* Posición absoluta: Safari de iOS viejos calculaba mal el 100% de alto dentro de la grilla y la foto se salía */
+  .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 8px; }
   .cuerpo { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
   .cuerpo h3 { margin: 0; font-size: 1.1rem; }
   .pres { color: var(--suave); font-size: .9rem; font-weight: 600; }
