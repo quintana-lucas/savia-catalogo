@@ -4,6 +4,8 @@
   "whatsapp": "5491135579199",
   "instagram": "https://www.instagram.com/savia_nutre/",
   "mensaje_pedido": "¡Hola! Quiero hacer este pedido:",
+  "descripcion": "Catálogo de Savia: frutas, verduras, pulpas, productos Nutree y pastas sin TACC congeladas. Elegí lo que querés y mandanos el pedido por WhatsApp.",
   "aviso": "Tocá «Agregar» en los productos que quieras y ajustá las cantidades con − y +. Cuando termines, tocá «Enviar pedido»: se abre WhatsApp con tu pedido ya escrito, listo para mandarnos. Ahí coordinamos la entrega.",
-  "indexar": false
+  "indexar": true,
+  "dominio": "savianutre.com.ar"
 }
