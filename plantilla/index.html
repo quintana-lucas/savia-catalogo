@@ -13,15 +13,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --hielo: #eef6f4;
-    --papel: #ffffff;
-    --tinta: #1d2b28;
-    --suave: #5d6f6b;
-    --verde: #2f7d5b;
-    --verde-osc: #225e44;
-    --fruta: #d9485f;
-    --linea: #d6e6e1;
-    --sombra: 0 1px 2px rgba(29,43,40,.06), 0 6px 20px rgba(29,43,40,.07);
+    /* Colores de marca (los del logo) */
+    --verde: #1d5e24;        /* principal: botones e íconos */
+    --verde-osc: #154519;    /* principal al pasar el mouse */
+    --verde-claro: #89b335;  /* secundario: solo detalles, no como fondo de texto blanco */
+    /* Neutros, con un leve tono verde para acompañar la marca */
+    --hielo: #f3f6ee;        /* fondo de la página */
+    --papel: #ffffff;        /* tarjetas y header */
+    --tinta: #1f2a1e;        /* texto principal */
+    --suave: #5e6b5a;        /* texto secundario */
+    --linea: #dde5d2;        /* bordes */
+    --fruta: #d9485f;        /* "Sin stock" */
+    --sombra: 0 1px 2px rgba(31,42,30,.06), 0 6px 20px rgba(31,42,30,.07);
     --radio: 16px;
   }
   * { box-sizing: border-box; }
@@ -36,7 +39,7 @@
   .envoltura { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
 
   /* Encabezado: logo centrado sobre blanco (el logo está pensado para fondo claro) */
-  header { background: var(--papel); border-bottom: 1px solid var(--linea); padding: 20px 0; }
+  header { background: var(--papel); border-bottom: 3px solid var(--verde-claro); padding: 20px 0; }
   header .envoltura { position: relative; display: flex; justify-content: center; align-items: center; }
   header h1 { margin: 0; line-height: 0; }
   .logo { width: clamp(180px, 42vw, 360px); height: auto; }
@@ -50,7 +53,7 @@
   /* Barra de filtros */
   .barra {
     position: sticky; top: 0; z-index: 5;
-    background: rgba(238,246,244,.92);
+    background: rgba(243,246,238,.92);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--linea);
   }
@@ -72,7 +75,7 @@
   /* Catálogo */
   main.envoltura { padding-top: 24px; padding-bottom: 56px; }
   .aviso {
-    background: var(--papel); border-left: 4px solid var(--verde);
+    background: var(--papel); border-left: 4px solid var(--verde-claro);
     padding: 12px 16px; border-radius: 10px; margin-bottom: 24px; color: var(--suave);
   }
   h2.cat {
@@ -86,7 +89,7 @@
   }
   .foto {
     aspect-ratio: 4 / 3; display: grid; place-items: center;
-    font-size: 4rem; background: linear-gradient(160deg, #f6fbfa, #e2efeb);
+    font-size: 4rem; background: linear-gradient(160deg, #f8faf4, #e8eedd);
   }
   /* Las fotos son de paquetes enteros: se muestran completas sobre blanco, sin recortar. */
   .foto:has(img) { background: #fff; }
