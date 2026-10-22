@@ -15,6 +15,7 @@ CSV / Google Sheets  ──(GitHub Action: en cada push a main, o a mano)──�
 - `data/productos.csv` — catálogo de ejemplo. Se usa mientras no conectes la planilla.
 - `plantilla/index.html` — el diseño de la página.
 - `img/` — fotos de productos (opcional).
+- `assets/` — logo y favicons de la marca.
 - `build.py` — arma la página en `_site/`. No necesita instalar nada.
 - `.github/workflows/publicar.yml` — la Action que genera y publica.
 
