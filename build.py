@@ -129,6 +129,7 @@ def main():
     SALIDA.mkdir()
     (SALIDA / "index.html").write_text(plantilla, encoding="utf-8")
     shutil.copytree(RAIZ / "img", SALIDA / "img")
+    shutil.copytree(RAIZ / "assets", SALIDA / "assets")
     (SALIDA / ".nojekyll").touch()
 
     if config.get("dominio"):
