@@ -11,11 +11,11 @@ de Google Sheets) y recibe los pedidos por WhatsApp. Se publica con GitHub Pages
 CSV / Google Sheets  ──(GitHub Action: en cada push a main, o a mano)──▶  build.py  ──▶  GitHub Pages
 ```
 
-- `config.json` — nombre, eslogan, número de WhatsApp, aviso y si Google puede indexar la página.
+- `config.json` — nombre, eslogan, descripción para Google, número de WhatsApp, aviso, dominio y si Google puede indexar la página (`indexar`). Con `indexar` y `dominio`, el build genera `robots.txt`, `sitemap.xml` y la vista previa para compartir el link.
 - `data/productos.csv` — catálogo de ejemplo. Se usa mientras no conectes la planilla.
 - `plantilla/index.html` — el diseño de la página.
 - `img/` — fotos de productos (opcional).
-- `assets/` — logo y favicons de la marca.
+- `assets/` — logo, favicons e imagen para compartir el link (`compartir.jpg`).
 - `build.py` — arma la página en `_site/`. No necesita instalar nada.
 - `.github/workflows/publicar.yml` — la Action que genera y publica.
 

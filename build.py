@@ -94,6 +94,61 @@ def redes(config):
     )
 
 
+def metadatos(config, titulo):
+    """Canonical, Open Graph (vista previa al compartir el link) y datos estructurados para Google."""
+    if not config.get("dominio"):
+        return ""
+    base = f"https://{config['dominio'].strip()}/"
+    imagen = base + "assets/compartir.jpg"
+    descripcion = config.get("descripcion") or config.get("eslogan", "")
+    negocio = {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": config["nombre"],
+        "description": descripcion,
+        "url": base,
+        "logo": base + "assets/favicon-512.png",
+        "image": imagen,
+        "telephone": "+" + config["whatsapp"],
+        "sameAs": [config["instagram"]] if config.get("instagram") else [],
+    }
+    etiquetas = [
+        f'<link rel="canonical" href="{base}">',
+        '<meta property="og:type" content="website">',
+        '<meta property="og:locale" content="es_AR">',
+        f'<meta property="og:site_name" content="{html.escape(config["nombre"])}">',
+        f'<meta property="og:title" content="{html.escape(titulo)}">',
+        f'<meta property="og:description" content="{html.escape(descripcion)}">',
+        f'<meta property="og:url" content="{base}">',
+        f'<meta property="og:image" content="{imagen}">',
+        '<meta property="og:image:width" content="1200">',
+        '<meta property="og:image:height" content="630">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        '<script type="application/ld+json">'
+        + json.dumps(negocio, ensure_ascii=False).replace("</", "<\\/")
+        + "</script>",
+    ]
+    return "\n".join(etiquetas)
+
+
+def robots_y_sitemap(config, ahora):
+    """robots.txt y sitemap.xml: le dicen a Google qué puede indexar y dónde está la página."""
+    if not config.get("indexar"):
+        (SALIDA / "robots.txt").write_text("User-agent: *\nDisallow: /\n")
+        return
+    robots = "User-agent: *\nAllow: /\n"
+    if config.get("dominio"):
+        base = f"https://{config['dominio'].strip()}/"
+        robots += f"\nSitemap: {base}sitemap.xml\n"
+        (SALIDA / "sitemap.xml").write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+            f"  <url><loc>{base}</loc><lastmod>{ahora.date().isoformat()}</lastmod></url>\n"
+            "</urlset>\n"
+        )
+    (SALIDA / "robots.txt").write_text(robots)
+
+
 def main():
     config = json.loads((RAIZ / "config.json").read_text(encoding="utf-8"))
     productos = limpiar_filas(leer_csv())
@@ -103,10 +158,16 @@ def main():
     categorias = list(dict.fromkeys(p["categoria"] for p in productos))
     ahora = datetime.now(timezone(timedelta(hours=-3)))
 
+    # Título de la pestaña y del resultado en Google: el nombre solo dice poco.
+    titulo = config.get("titulo") or " | ".join(filter(None, [config["nombre"], config.get("eslogan")]))
+
     plantilla = (RAIZ / "plantilla" / "index.html").read_text(encoding="utf-8")
     reemplazos = {
+        "{{TITULO}}": html.escape(titulo),
+        "{{METADATOS}}": metadatos(config, titulo),
         "{{NOMBRE}}": html.escape(config["nombre"]),
         "{{ESLOGAN}}": html.escape(config.get("eslogan", "")),
+        "{{DESCRIPCION}}": html.escape(config.get("descripcion") or config.get("eslogan", "")),
         "{{AVISO}}": html.escape(config.get("aviso", "")),
         "{{REDES}}": redes(config),
         "{{ROBOTS}}": "" if config.get("indexar") else '<meta name="robots" content="noindex, nofollow">',
@@ -131,6 +192,8 @@ def main():
     shutil.copytree(RAIZ / "img", SALIDA / "img")
     shutil.copytree(RAIZ / "assets", SALIDA / "assets")
     (SALIDA / ".nojekyll").touch()
+
+    robots_y_sitemap(config, ahora)
 
     if config.get("dominio"):
         (SALIDA / "CNAME").write_text(config["dominio"].strip() + "\n")
