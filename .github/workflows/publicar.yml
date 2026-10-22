@@ -1,0 +1,47 @@
+name: Publicar catálogo
+
+on:
+  # Cada vez que se sube un cambio al repo (plantilla, fotos, config...)
+  push:
+    branches: [main]
+  # Botón "Run workflow" en la pestaña Actions
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generar la página
+        env:
+          # Si está configurada la variable SHEET_CSV_URL (Settings → Secrets and
+          # variables → Actions → Variables), lee la planilla de Google.
+          # Si no, usa data/productos.csv del repo.
+          SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL }}
+        run: python build.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
