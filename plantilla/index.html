@@ -6,6 +6,9 @@
 {{ROBOTS}}
 <title>{{NOMBRE}}</title>
 <meta name="description" content="{{ESLOGAN}}">
+<link rel="icon" href="img/favicon.ico" sizes="48x48">
+<link rel="icon" href="img/favicon-512.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -32,30 +35,17 @@
   img { max-width: 100%; display: block; }
   .envoltura { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
 
-  /* Encabezado */
-  header {
-    background:
-      radial-gradient(circle at 85% 20%, rgba(255,255,255,.18) 0 60px, transparent 61px),
-      radial-gradient(circle at 92% 70%, rgba(255,255,255,.10) 0 90px, transparent 91px),
-      linear-gradient(135deg, var(--verde) 0%, #3a9a8a 100%);
-    color: #fff;
-    padding: 40px 0 56px;
-  }
-  header h1 {
-    font-family: "Fraunces", Georgia, serif;
-    font-weight: 800;
-    font-size: clamp(2rem, 6vw, 3.2rem);
-    margin: 0 0 6px;
-    letter-spacing: -.01em;
-  }
-  header p { margin: 0; font-size: 1.1rem; opacity: .92; max-width: 34ch; }
-  header .envoltura { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-  .redes { display: flex; gap: 8px; flex-shrink: 0; }
+  /* Encabezado: logo centrado sobre blanco (el logo está pensado para fondo claro) */
+  header { background: var(--papel); border-bottom: 1px solid var(--linea); padding: 20px 0; }
+  header .envoltura { position: relative; display: flex; justify-content: center; align-items: center; }
+  header h1 { margin: 0; line-height: 0; }
+  .logo { width: clamp(180px, 42vw, 360px); height: auto; }
+  .redes { position: absolute; right: 16px; top: 0; display: flex; gap: 8px; }
   .redes a {
-    width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
-    color: #fff; background: rgba(255,255,255,.16); text-decoration: none;
+    width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+    color: #fff; background: var(--verde); text-decoration: none;
   }
-  .redes a:hover { background: rgba(255,255,255,.28); }
+  .redes a:hover { background: var(--verde-osc); }
 
   /* Barra de filtros */
   .barra {
@@ -63,7 +53,6 @@
     background: rgba(238,246,244,.92);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--linea);
-    margin-top: -28px;
   }
   .barra .envoltura { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 12px; padding-bottom: 12px; align-items: center; }
   .chips { display: flex; gap: 8px; overflow-x: auto; flex: 1 1 auto; scrollbar-width: none; }
@@ -145,7 +134,12 @@
 
   footer { text-align: center; color: var(--suave); font-size: .85rem; padding: 0 16px 100px; }
 
+  @media (max-width: 360px) { .logo { width: 116px !important; } }
   @media (max-width: 480px) {
+    .logo { width: 140px; }
+    .redes { gap: 6px; }
+    .redes a { width: 34px; height: 34px; }
+    .redes svg { width: 18px; height: 18px; }
     .grilla { grid-template-columns: 1fr 1fr; gap: 10px; }
     .foto { font-size: 2.8rem; }
     .cuerpo { padding: 10px 12px 12px; }
@@ -165,10 +159,7 @@
 <body>
 <header>
   <div class="envoltura">
-    <div>
-      <h1>{{NOMBRE}}</h1>
-      <p>{{ESLOGAN}}</p>
-    </div>
+    <h1><img class="logo" src="img/logo-horizontal.webp" alt="{{NOMBRE}}" width="895" height="464"></h1>
     <nav class="redes" aria-label="Redes">{{REDES}}</nav>
   </div>
 </header>
