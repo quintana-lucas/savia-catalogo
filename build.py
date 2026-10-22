@@ -77,6 +77,23 @@ def limpiar_filas(filas):
     return productos
 
 
+WA_SVG = '<path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/>'
+IG_SVG = '<path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/>'
+
+
+def redes(config):
+    """Íconos del encabezado: Instagram (si está en config) y WhatsApp."""
+    enlaces = []
+    if config.get("instagram"):
+        enlaces.append((config["instagram"], "Instagram", IG_SVG))
+    enlaces.append((f"https://wa.me/{config['whatsapp']}", "WhatsApp", WA_SVG))
+    return "".join(
+        f'<a href="{html.escape(url)}" target="_blank" rel="noopener" aria-label="{nombre}" title="{nombre}">'
+        f'<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{svg}</svg></a>'
+        for url, nombre, svg in enlaces
+    )
+
+
 def main():
     config = json.loads((RAIZ / "config.json").read_text(encoding="utf-8"))
     productos = limpiar_filas(leer_csv())
@@ -91,6 +108,7 @@ def main():
         "{{NOMBRE}}": html.escape(config["nombre"]),
         "{{ESLOGAN}}": html.escape(config.get("eslogan", "")),
         "{{AVISO}}": html.escape(config.get("aviso", "")),
+        "{{REDES}}": redes(config),
         "{{ROBOTS}}": "" if config.get("indexar") else '<meta name="robots" content="noindex, nofollow">',
         "{{ACTUALIZADO}}": ahora.strftime("%d/%m/%Y %H:%M"),
         "{{DATOS}}": json.dumps(

@@ -49,6 +49,13 @@
     letter-spacing: -.01em;
   }
   header p { margin: 0; font-size: 1.1rem; opacity: .92; max-width: 34ch; }
+  header .envoltura { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .redes { display: flex; gap: 8px; flex-shrink: 0; }
+  .redes a {
+    width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+    color: #fff; background: rgba(255,255,255,.16); text-decoration: none;
+  }
+  .redes a:hover { background: rgba(255,255,255,.28); }
 
   /* Barra de filtros */
   .barra {
@@ -156,8 +163,11 @@
 <body>
 <header>
   <div class="envoltura">
-    <h1>{{NOMBRE}}</h1>
-    <p>{{ESLOGAN}}</p>
+    <div>
+      <h1>{{NOMBRE}}</h1>
+      <p>{{ESLOGAN}}</p>
+    </div>
+    <nav class="redes" aria-label="Redes">{{REDES}}</nav>
   </div>
 </header>
 
