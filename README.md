@@ -1,6 +1,6 @@
 # savia-catalogo
 
-> Nombre provisorio del negocio: **La Huerta Congelada** (se cambia en `config.json`).
+Catálogo de **Savia**. El nombre y los textos se cambian en `config.json`.
 
 Página de catálogo que se genera desde una lista de productos (CSV o planilla
 de Google Sheets) y recibe los pedidos por WhatsApp. Se publica con GitHub Pages.
