@@ -127,6 +127,19 @@ def metadatos(config, titulo):
         '<script type="application/ld+json">'
         + json.dumps(negocio, ensure_ascii=False).replace("</", "<\\/")
         + "</script>",
+        # Nombre del sitio que muestra Google arriba del resultado (si no, pone el dominio)
+        '<script type="application/ld+json">'
+        + json.dumps(
+            {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": config["nombre"],
+                "alternateName": config["dominio"].strip(),
+                "url": base,
+            },
+            ensure_ascii=False,
+        ).replace("</", "<\\/")
+        + "</script>",
     ]
     return "\n".join(etiquetas)
 
@@ -191,6 +204,8 @@ def main():
     (SALIDA / "index.html").write_text(plantilla, encoding="utf-8")
     shutil.copytree(RAIZ / "img", SALIDA / "img")
     shutil.copytree(RAIZ / "assets", SALIDA / "assets")
+    # Google y algunos navegadores buscan el ícono en /favicon.ico aunque la página diga otra ruta
+    shutil.copy(RAIZ / "assets" / "favicon.ico", SALIDA / "favicon.ico")
     (SALIDA / ".nojekyll").touch()
 
     robots_y_sitemap(config, ahora)
