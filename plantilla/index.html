@@ -345,7 +345,7 @@
 
     const lineas = items.map(x => `• ${x.c} × ${x.p.nombre}${x.p.presentacion ? " (" + x.p.presentacion + ")" : ""}` +
       (x.p.precio != null ? ` — ${pesos(x.c * x.p.precio)}` : " — a consultar"));
-    const texto = `${DATOS.mensaje}\n\n${lineas.join("\n")}`;
+    const texto = `${DATOS.mensaje}\n\n${lineas.join("\n")}\n\nTotal estimado: ${pesos(total)}${parcial ? " + productos a consultar" : ""}`;
     document.getElementById("enviar").href = `https://wa.me/${DATOS.whatsapp}?text=${encodeURIComponent(texto)}`;
     caja.classList.add("visible");
   }
