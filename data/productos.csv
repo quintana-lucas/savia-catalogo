@@ -1,15 +1,15 @@
 Categoría,Nombre,Descripción,Presentación,Precio,Disponible,Foto
 Verduras,Acelga,,Bolsa 1 kg,5500,si,acelga.jpg
-Verduras,Arvejas,,Bolsa 1 kg,6750,si,arvejas.jpg
+Verduras,Arvejas,,Bolsa 1 kg,7750,si,arvejas.jpg
 Verduras,Brócoli,,Bolsa 500 g,4125,si,brocoli.jpg
 Verduras,Cebollas cortadas,,Bolsa 1 kg,6900,si,cebollas-cortadas.jpg
 Verduras,Champignones,Champignones fileteados,Bolsa 1 kg,12225,si,champignones-fileteados.jpg
-Verduras,Chaucha,,Bolsa 1 kg,8700,si,chaucha.jpg
+Verduras,Chaucha,,Bolsa 1 kg,8850,si,chaucha.jpg
 Verduras,Choclo,,Bolsa 1 kg,6300,si,choclo.jpg
 Verduras,Espárrago,,Bolsa 1 kg,18750,si,esparrago.jpg
 Verduras,Espinaca,,Bolsa 1 kg,6900,si,espinaca.jpg
-Verduras,Morrones rojos picados,,Bolsa 1 kg,10900,si,morrones-rojos-picados.jpg
-Verduras,Mix primavera,"Arvejas, chauchas, choclo y zanahoria.",Bolsa 1 kg,6750,si,mix-primavera.jpg
+Verduras,Morrones rojos picados,,Bolsa 1 kg,11700,si,morrones-rojos-picados.jpg
+Verduras,Mix primavera,"Arvejas, chauchas, choclo y zanahoria.",Bolsa 1 kg,8500,si,mix-primavera.jpg
 Frutas,Ananá,,Bolsa 1 kg,13800,si,anana.jpg
 Frutas,Arándanos,,Bolsa 1 kg,14250,si,arandanos.jpg
 Frutas,Durazno,,Bolsa 1 kg,9000,si,durazno.jpg
@@ -35,8 +35,8 @@ Preparados,Nuggets tres cereales,"A base de mijo, arroz, harina de garbanzo, lev
 Preparados,Nuggets de brócoli,"A base de mijo, arroz, harina de garbanzo, levadura nutricional, verduras y condimentos.",300 g,6000,si,nuggets-de-brocoli.jpg
 Preparados,Milanesas clásicas,"A base de arroz integral, harina de garbanzo, fécula de mandioca, verduras y condimentos.",2 unidades,3000,si,milanesas-clasicas.jpg
 Preparados,Milanesas de espinaca,"A base de arroz integral, harina de garbanzo, fécula de mandioca, verduras y condimentos.",2 unidades,3000,si,milanesas-de-espinaca.jpg
-Pastas,Ravioles de espinaca y ricota,"Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,5800,si,ravioles-de-espinaca-y-ricota.jpg
-Pastas,Ravioles mediterráneos,"Veganos. Berenjena, cebolla, tomate, aceituna y morrón. Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,5800,si,ravioles-mediterraneos.jpg
-Pastas,Ravioles de hongos y queso,"Veganos. Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,5800,si,ravioles-de-hongos-y-queso.jpg
+Pastas,Ravioles de espinaca y ricota,"Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,6000,si,ravioles-de-espinaca-y-ricota.jpg
+Pastas,Ravioles mediterráneos,"Veganos. Berenjena, cebolla, tomate, aceituna y morrón. Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,6000,si,ravioles-mediterraneos.jpg
+Pastas,Ravioles de hongos y queso,"Veganos. Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,6000,si,ravioles-de-hongos-y-queso.jpg
 Pastas,Ñoquis de papa,Veganos y sin TACC. A base de trigo sarraceno y harina de sorgo.,250 g,3000,si,noquis-de-papa.jpg
 Pastas,Ñoquis de espinaca,Veganos y sin TACC. A base de trigo sarraceno y harina de sorgo.,250 g,3000,si,noquis-de-espinaca.jpg
