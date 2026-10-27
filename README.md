@@ -52,6 +52,8 @@ CSV / Google Sheets  ──(GitHub Action: en cada push a main, cada hora o a ma
 - **Disponible**: `si` o `no`. Con `no` el producto se ve en gris y no se puede pedir.
 - **Foto** (opcional): un link `https://...` a la imagen, o el nombre de un archivo
   subido a `img/` (por ejemplo `frutillas.jpg`). Sin foto, se muestra un ícono.
+- **Foto**: si el archivo no está en `img/`, la Action avisa en el log (warning) y se muestra el emoji del producto hasta que la subas. Si solo difiere en mayúsculas (`Acelga.JPG` y `acelga.jpg`), usa el archivo que existe.
+- **Categoría «Ofertas»**: si tiene productos, aparece siempre primera, con 🔥. Si no tiene, no se muestra. Un producto puede estar en Ofertas y en su categoría a la vez (dos filas); en el pedido de WhatsApp el de oferta sale marcado «[oferta]».
 - Las filas sin nombre se ignoran.
 - No renombres ni borres la primera fila: si faltan las columnas **Nombre** o
   **Precio**, la Action falla y la página anterior sigue publicada.

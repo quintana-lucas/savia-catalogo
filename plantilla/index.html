@@ -96,6 +96,11 @@
   }
   /* Las fotos son de paquetes enteros: se muestran completas sobre blanco, sin recortar. */
   .foto:has(img) { background: #fff; }
+  /* El emoji va siempre debajo de la foto y se muestra solo si la imagen no carga (link caído, archivo borrado) */
+  .foto:has(img) .sin-foto { display: none; }
+  .foto.rota { background: linear-gradient(160deg, #f8faf4, #e8eedd); }
+  .foto.rota img { display: none; }
+  .foto.rota .sin-foto { display: inline; }
   /* Posición absoluta: Safari de iOS viejos calculaba mal el 100% de alto dentro de la grilla y la foto se salía */
   .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 8px; }
   .cuerpo { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
@@ -228,7 +233,7 @@
     arveja: "🫛", chaucha: "🫛", zanahoria: "🥕", morron: "🫑", papa: "🥔", cebolla: "🧅",
     hongo: "🍄", champi: "🍄", berenjena: "🍆", tomate: "🍅", mix: "🥗"
   };
-  const EMOJI_CAT = { frutas: "🍓", verduras: "🥦", elaborados: "🍲", pulpas: "🥤", preparados: "🌱", pastas: "🍝" };
+  const EMOJI_CAT = { ofertas: "🔥", frutas: "🍓", verduras: "🥦", elaborados: "🍲", pulpas: "🥤", preparados: "🌱", pastas: "🍝" };
 
   const sinTildes = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const pesos = n => "$" + n.toLocaleString("es-AR");
@@ -240,15 +245,24 @@
     return EMOJI_CAT[sinTildes(p.categoria)] || "❄️";
   }
   function fotoPara(p) {
-    if (!p.foto) return `<span aria-hidden="true">${emojiPara(p)}</span>`;
+    const emoji = `<span class="sin-foto" aria-hidden="true">${emojiPara(p)}</span>`;
+    if (!p.foto) return emoji;
     const src = /^https?:\/\//.test(p.foto) ? p.foto : "img/" + p.foto;
-    return `<img src="${esc(src)}" alt="${esc(p.nombre)}" loading="lazy">`;
+    return `${emoji}<img src="${esc(src)}" alt="${esc(p.nombre)}" loading="lazy" onerror="this.parentNode.classList.add('rota')">`;
   }
 
   // Estado
   // El id sale del nombre y la presentación (no de la posición en la planilla),
   // así un carrito guardado sigue apuntando al mismo producto si se reordenan filas.
-  const productos = DATOS.productos.map(p => ({ ...p, id: sinTildes(p.nombre + "|" + (p.presentacion || "")) }));
+  // Si el mismo producto está en dos categorías (por ejemplo en Ofertas y en Verduras), el segundo
+  // suma la categoría al id para que el carrito no los confunda.
+  const vistos = new Set();
+  const productos = DATOS.productos.map(p => {
+    let id = sinTildes(p.nombre + "|" + (p.presentacion || ""));
+    if (vistos.has(id)) id = sinTildes(p.categoria + "|" + id);
+    vistos.add(id);
+    return { ...p, id };
+  });
   const porId = Object.fromEntries(productos.map(p => [p.id, p]));
   let filtro = "Todos";
   let busqueda = "";
@@ -343,7 +357,9 @@
     document.getElementById("resumen").innerHTML =
       `<strong>${pesos(total)}</strong>${parcial ? "+ a consultar · " : ""}${unidades} ${unidades === 1 ? "producto" : "productos"}`;
 
+    // Si un producto está en Ofertas y en su categoría, la marca evita que se confundan las dos líneas
     const lineas = items.map(x => `• ${x.c} × ${x.p.nombre}${x.p.presentacion ? " (" + x.p.presentacion + ")" : ""}` +
+      (sinTildes(x.p.categoria) === "ofertas" ? " [oferta]" : "") +
       (x.p.precio != null ? ` — ${pesos(x.c * x.p.precio)}` : " — a consultar"));
     const texto = `${DATOS.mensaje}\n\n${lineas.join("\n")}\n\nTotal estimado: ${pesos(total)}${parcial ? " + productos a consultar" : ""}`;
     document.getElementById("enviar").href = `https://wa.me/${DATOS.whatsapp}?text=${encodeURIComponent(texto)}`;
