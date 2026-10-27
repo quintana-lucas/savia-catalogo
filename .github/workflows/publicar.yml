@@ -6,6 +6,16 @@ on:
     branches: [main]
   # Botón "Run workflow" en la pestaña Actions
   workflow_dispatch:
+    inputs:
+      forzar:
+        description: "Publicar igual aunque la planilla tenga muchos menos productos que la página"
+        type: boolean
+        default: false
+  # Cada hora de 8 a 22 (hora de Argentina; GitHub usa UTC = Argentina + 3 h).
+  # Solo publica si la planilla cambió. Puede demorarse unos minutos.
+  schedule:
+    - cron: "7 11-23 * * *"
+    - cron: "7 0-1 * * *"
 
 permissions:
   contents: read
@@ -14,7 +24,8 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # No cortar una publicación a la mitad si arranca otra (por ejemplo, la automática).
+  cancel-in-progress: false
 
 jobs:
   publicar:
@@ -30,18 +41,26 @@ jobs:
           python-version: "3.12"
 
       - name: Generar la página
+        id: build
         env:
           # Si está configurada la variable SHEET_CSV_URL (Settings → Secrets and
           # variables → Actions → Variables), lee la planilla de Google.
           # Si no, usa data/productos.csv del repo.
           SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL }}
+          # En las corridas automáticas no se republica si nada cambió
+          # (así la fecha de "Catálogo actualizado" sigue siendo la real).
+          SOLO_SI_CAMBIA: ${{ github.event_name == 'schedule' }}
+          FORZAR: ${{ inputs.forzar }}
         run: python build.py
 
-      - uses: actions/configure-pages@v5
+      - if: steps.build.outputs.publicar == 'true'
+        uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@v3
+      - if: steps.build.outputs.publicar == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
-      - id: deploy
+      - if: steps.build.outputs.publicar == 'true'
+        id: deploy
         uses: actions/deploy-pages@v4

@@ -5,6 +5,10 @@ Fuente de productos (en orden de prioridad):
   1. La variable de entorno SHEET_CSV_URL (Google Sheets publicada como CSV).
   2. El archivo local data/productos.csv.
 
+Otras variables de entorno (las pone la GitHub Action):
+  SOLO_SI_CAMBIA=true  no publica si los productos son iguales a los de la página actual.
+  FORZAR=true          publica aunque haya muchos menos productos que antes.
+
 Solo usa la biblioteca estándar de Python: no hace falta instalar nada.
 """
 import csv
@@ -31,6 +35,10 @@ COLUMNAS = {
     "disponible": "disponible",
     "foto": "foto",
 }
+# Sin estas columnas la página saldría rota (sin productos o todo en "Consultar").
+OBLIGATORIAS = ("nombre", "precio")
+# Si quedan menos de esta fracción de los productos publicados, se frena (filas borradas por error).
+MINIMO_RESPECTO_ANTERIOR = 0.5
 
 
 def normalizar(texto):
@@ -47,7 +55,16 @@ def leer_csv():
     else:
         print("Usando data/productos.csv")
         texto = (RAIZ / "data" / "productos.csv").read_text(encoding="utf-8-sig")
-    return list(csv.DictReader(io.StringIO(texto)))
+    lector = csv.DictReader(io.StringIO(texto))
+    encontradas = [c for c in (lector.fieldnames or []) if c]
+    faltan = [c for c in OBLIGATORIAS if c not in {COLUMNAS.get(normalizar(x)) for x in encontradas}]
+    if faltan:
+        sys.exit(
+            f"ERROR: a la planilla le faltan las columnas {', '.join(faltan)}. "
+            f"Columnas encontradas: {', '.join(encontradas) or '(ninguna)'}. "
+            "Revisá que nadie haya renombrado o borrado la primera fila. No se publica nada."
+        )
+    return list(lector)
 
 
 def parsear_precio(valor):
@@ -162,11 +179,47 @@ def robots_y_sitemap(config, ahora):
     (SALIDA / "robots.txt").write_text(robots)
 
 
+def productos_publicados(config):
+    """Los productos de la página que está online ahora, o None si no se pueden leer."""
+    if not config.get("dominio"):
+        return None
+    url = f"https://{config['dominio'].strip()}/productos.json"
+    try:
+        with urllib.request.urlopen(url, timeout=30) as r:
+            return json.loads(r.read().decode("utf-8"))
+    except Exception as e:  # primera vez (todavía no existe), sin conexión, etc.
+        print(f"No se pudo leer {url} ({e}). Se sigue sin comparar.")
+        return None
+
+
+def avisar_a_la_action(clave, valor):
+    salida = os.environ.get("GITHUB_OUTPUT")
+    if salida:
+        with open(salida, "a") as f:
+            f.write(f"{clave}={valor}\n")
+
+
+def activa(variable):
+    return os.environ.get(variable, "").strip().lower() == "true"
+
+
 def main():
     config = json.loads((RAIZ / "config.json").read_text(encoding="utf-8"))
     productos = limpiar_filas(leer_csv())
     if not productos:
         sys.exit("ERROR: la planilla no tiene productos. No se publica nada para no dejar la página vacía.")
+
+    anteriores = productos_publicados(config)
+    if anteriores is not None:
+        if activa("SOLO_SI_CAMBIA") and anteriores == productos:
+            print("Los productos no cambiaron: no se publica.")
+            avisar_a_la_action("publicar", "false")
+            return
+        if len(productos) < len(anteriores) * MINIMO_RESPECTO_ANTERIOR and not activa("FORZAR"):
+            sys.exit(
+                f"ERROR: la página tiene {len(anteriores)} productos y la planilla solo {len(productos)}. "
+                "Si fue a propósito, corré la Action a mano tildando «Publicar igual». No se publica nada."
+            )
 
     categorias = list(dict.fromkeys(p["categoria"] for p in productos))
     ahora = datetime.now(timezone(timedelta(hours=-3)))
@@ -202,6 +255,8 @@ def main():
         shutil.rmtree(SALIDA)
     SALIDA.mkdir()
     (SALIDA / "index.html").write_text(plantilla, encoding="utf-8")
+    # Copia de los productos publicados: la próxima corrida la compara con la planilla.
+    (SALIDA / "productos.json").write_text(json.dumps(productos, ensure_ascii=False), encoding="utf-8")
     shutil.copytree(RAIZ / "img", SALIDA / "img")
     shutil.copytree(RAIZ / "assets", SALIDA / "assets")
     # Google y algunos navegadores buscan el ícono en /favicon.ico aunque la página diga otra ruta
@@ -213,6 +268,7 @@ def main():
     if config.get("dominio"):
         (SALIDA / "CNAME").write_text(config["dominio"].strip() + "\n")
 
+    avisar_a_la_action("publicar", "true")
     print(f"Listo: {len(productos)} productos en {len(categorias)} categorías -> _site/index.html")
 
 
