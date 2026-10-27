@@ -37,6 +37,8 @@ COLUMNAS = {
 }
 # Sin estas columnas la página saldría rota (sin productos o todo en "Consultar").
 OBLIGATORIAS = ("nombre", "precio")
+# Categorías que van siempre primero, en este orden, cuando tienen productos (sin tildes ni mayúsculas).
+PRIMERAS = ("ofertas",)
 # Si quedan menos de esta fracción de los productos publicados, se frena (filas borradas por error).
 MINIMO_RESPECTO_ANTERIOR = 0.5
 
@@ -73,6 +75,33 @@ def parsear_precio(valor):
         return round(float(limpio))
     except ValueError:
         return None
+
+
+def revisar_fotos(productos):
+    """Si una foto no está en img/, avisa en el log y la deja vacía: la página muestra el emoji."""
+    disponibles = {f.name for f in (RAIZ / "img").iterdir()} if (RAIZ / "img").is_dir() else set()
+    por_minuscula = {nombre.lower(): nombre for nombre in disponibles}
+    for p in productos:
+        foto = p.get("foto", "")
+        if not foto or foto.startswith(("http://", "https://")) or foto in disponibles:
+            continue
+        real = por_minuscula.get(foto.lower())
+        if real:
+            # GitHub Pages distingue mayúsculas: "Acelga.JPG" no encuentra "acelga.jpg".
+            print(f"::warning::Foto de «{p['nombre']}»: se usa «{real}» en vez de «{foto}».")
+            p["foto"] = real
+        else:
+            print(f"::warning::Falta la foto «{foto}» de «{p['nombre']}» en img/. Se muestra el emoji hasta que la subas.")
+            p["foto"] = ""
+
+
+def ordenar_categorias(productos):
+    """Categorías en el orden de la planilla, salvo las de PRIMERAS, que van adelante si tienen productos."""
+    categorias = list(dict.fromkeys(p["categoria"] for p in productos))
+    return sorted(
+        categorias,
+        key=lambda c: PRIMERAS.index(normalizar(c)) if normalizar(c) in PRIMERAS else len(PRIMERAS),
+    )
 
 
 def limpiar_filas(filas):
@@ -206,6 +235,7 @@ def activa(variable):
 def main():
     config = json.loads((RAIZ / "config.json").read_text(encoding="utf-8"))
     productos = limpiar_filas(leer_csv())
+    revisar_fotos(productos)
     if not productos:
         sys.exit("ERROR: la planilla no tiene productos. No se publica nada para no dejar la página vacía.")
 
@@ -221,7 +251,7 @@ def main():
                 "Si fue a propósito, corré la Action a mano tildando «Publicar igual». No se publica nada."
             )
 
-    categorias = list(dict.fromkeys(p["categoria"] for p in productos))
+    categorias = ordenar_categorias(productos)
     ahora = datetime.now(timezone(timedelta(hours=-3)))
 
     # Título de la pestaña y del resultado en Google: el nombre solo dice poco.
