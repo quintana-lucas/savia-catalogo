@@ -8,11 +8,13 @@ de Google Sheets) y recibe los pedidos por WhatsApp. Se publica con GitHub Pages
 ## Cómo funciona
 
 ```
-CSV / Google Sheets  ──(GitHub Action: en cada push a main, o a mano)──▶  build.py  ──▶  GitHub Pages
+CSV / Google Sheets  ──(GitHub Action: en cada push a main, cada hora o a mano)──▶  build.py  ──▶  GitHub Pages
 ```
 
 - `config.json` — nombre, eslogan, descripción para Google, número de WhatsApp, aviso, dominio y si Google puede indexar la página (`indexar`). Con `indexar` y `dominio`, el build genera `robots.txt`, `sitemap.xml` y la vista previa para compartir el link.
-- `data/productos.csv` — catálogo de ejemplo. Se usa mientras no conectes la planilla.
+- `data/productos.csv` — respaldo del catálogo. **No se usa mientras la planilla esté conectada**
+  (variable `SHEET_CSV_URL`): los cambios hay que hacerlos en la planilla. Si borrás la variable,
+  la página vuelve a armarse con este archivo.
 - `plantilla/index.html` — el diseño de la página.
 - `img/` — fotos de productos (opcional).
 - `assets/` — logo, favicons e imagen para compartir el link (`compartir.jpg`).
@@ -31,8 +33,18 @@ CSV / Google Sheets  ──(GitHub Action: en cada push a main, o a mano)──�
    **Valores separados por comas (.csv)** → Publicar. Copiá el link.
 3. En el repo: *Settings → Secrets and variables → Actions → pestaña Variables →
    New repository variable*. Nombre: `SHEET_CSV_URL`, valor: el link.
-4. Corré la Action a mano (*Actions → Publicar catálogo → Run workflow*). Cada vez
-   que cambie la planilla hay que volver a correrla.
+4. Corré la Action a mano (*Actions → Publicar catálogo → Run workflow*) para
+   publicar la planilla por primera vez.
+
+### Cuándo se actualiza la página
+
+- **Sola, cada hora** de 8 a 22 (hora de Argentina). Si la planilla no cambió, no
+  publica nada. GitHub a veces atrasa estas corridas unos minutos.
+- **Al momento**: *Actions → Publicar catálogo → Run workflow*. Esperá unos 5 minutos
+  después de editar la planilla, que es lo que tarda Google en actualizar la versión
+  publicada.
+- Si el repo pasa 60 días sin cambios, GitHub apaga la corrida automática y manda un
+  mail; se vuelve a activar desde *Actions → Publicar catálogo → Enable workflow*.
 
 ### Reglas para quien carga la planilla
 
@@ -41,8 +53,11 @@ CSV / Google Sheets  ──(GitHub Action: en cada push a main, o a mano)──�
 - **Foto** (opcional): un link `https://...` a la imagen, o el nombre de un archivo
   subido a `img/` (por ejemplo `frutillas.jpg`). Sin foto, se muestra un ícono.
 - Las filas sin nombre se ignoran.
-- Si la planilla queda vacía por error, la Action falla a propósito y la página
-  anterior sigue publicada.
+- No renombres ni borres la primera fila: si faltan las columnas **Nombre** o
+  **Precio**, la Action falla y la página anterior sigue publicada.
+- Si la planilla queda vacía, o con menos de la mitad de los productos que hay en
+  la página, la Action también falla a propósito. Si sacaste muchos productos a
+  propósito, corré la Action a mano tildando *Publicar igual*.
 
 ## Probar en la compu
 
