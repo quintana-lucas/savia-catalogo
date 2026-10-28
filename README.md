@@ -17,7 +17,6 @@ arma los pedidos como un mensaje de WhatsApp.
   (`configure-pages`, `upload-pages-artifact`, `deploy-pages`), en vez de una rama `gh-pages`.
 - **Variables de repositorio**: la Action lee `SHEET_CSV_URL` desde *Settings → Variables*.
 - **Pasos condicionales**: el build decide si hay que publicar (`if:` sobre un output del paso).
-- **Pull requests** y revisión de cambios antes de mergear a `main`.
 - Dominio propio, `robots.txt`, `sitemap.xml` e indexación en Google.
 
 ## De dónde sale la idea: del feed RSS a una página HTML
