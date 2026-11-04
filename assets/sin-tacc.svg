@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#1d5e24" stroke-width="3" stroke-linecap="round">
+  <!-- Ícono provisorio (espiga tachada). Reemplazar por el logo oficial Sin TACC con el mismo nombre de archivo. -->
+  <circle cx="24" cy="24" r="21"/>
+  <path d="M24 38V12"/>
+  <path d="M24 18c-4 0-6-3-6-6 4 0 6 3 6 6Zm0 0c4 0 6-3 6-6-4 0-6 3-6 6Z"/>
+  <path d="M24 25c-4 0-6-3-6-6 4 0 6 3 6 6Zm0 0c4 0 6-3 6-6-4 0-6 3-6 6Z"/>
+  <path d="M24 32c-4 0-6-3-6-6 4 0 6 3 6 6Zm0 0c4 0 6-3 6-6-4 0-6 3-6 6Z"/>
+  <path d="M9 39 39 9" stroke="#d9485f"/>
+</svg>

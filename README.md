@@ -38,3 +38,20 @@ haber una versión con RSS: la primera versión ya salió con CSV y HTML.
 | Script que genera el feed | `build.py` |
 | `feed.xml` (RSS) para apps de podcasts | `index.html` para el navegador, desde `plantilla/index.html` |
 | Action que lo regenera y publica | `.github/workflows/publicar.yml` |
+
+## ¿Quiénes somos?: modal o página
+
+El texto está en `config.json`, en `quienes_somos` (una lista: cada elemento es un
+párrafo). Si se borra ese campo, el botón no aparece.
+
+Cómo se muestra lo decide la variable de repositorio `QUIENES_SOMOS`
+(*Settings → Secrets and variables → Actions → Variables*):
+
+| Valor | Resultado |
+|---|---|
+| `modal` (o sin la variable) | El botón del encabezado abre un cartel encima del catálogo. |
+| `pagina` | El botón lleva a `quienes-somos.html`, que también entra en el `sitemap.xml`. |
+
+Las corridas automáticas solo publican si cambió la planilla: después de cambiar
+la variable, corré la Action a mano (*Actions → Publicar catálogo → Run workflow*).
+Para probar en local: `QUIENES_SOMOS=pagina python build.py`.

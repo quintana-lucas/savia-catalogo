@@ -1,0 +1,75 @@
+  /* Estilos comunes a todas las páginas: build.py los copia dentro del <style> de cada plantilla */
+  :root {
+    /* Colores de marca (los del logo) */
+    --verde: #1d5e24;        /* principal: botones e íconos */
+    --verde-osc: #154519;    /* principal al pasar el mouse */
+    --verde-claro: #89b335;  /* secundario: solo detalles, no como fondo de texto blanco */
+    /* Neutros, con un leve tono verde para acompañar la marca */
+    --hielo: #f3f6ee;        /* fondo de la página */
+    --papel: #ffffff;        /* tarjetas y header */
+    --tinta: #1f2a1e;        /* texto principal */
+    --suave: #5e6b5a;        /* texto secundario */
+    --linea: #dde5d2;        /* bordes */
+    --fruta: #d9485f;        /* "Sin stock" */
+    --sombra: 0 1px 2px rgba(31,42,30,.06), 0 6px 20px rgba(31,42,30,.07);
+    --radio: 16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Nunito Sans", system-ui, sans-serif;
+    color: var(--tinta);
+    background: var(--hielo);
+    line-height: 1.45;
+  }
+  img { max-width: 100%; display: block; }
+  .envoltura { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+  /* Encabezado: logo centrado sobre blanco (el logo está pensado para fondo claro) */
+  header { background: var(--papel); border-bottom: 3px solid var(--verde-claro); padding: 20px 0; }
+  header .envoltura { position: relative; display: flex; justify-content: center; align-items: center; }
+  .marca { margin: 0; line-height: 0; }
+  .logo { width: clamp(180px, 42vw, 360px); height: auto; }
+  /* Sellos (Sin TACC, IQF): a la izquierda del logo */
+  .sellos {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px;
+    color: var(--verde); font-weight: 800; font-size: .95rem;
+  }
+  .sellos li { display: flex; align-items: center; gap: 8px; }
+  .sellos img, .sellos .copo { width: 28px; height: 28px; flex-shrink: 0; }
+  .sellos .copo { display: grid; place-items: center; font-size: 1.35rem; line-height: 1; }
+  .redes { position: absolute; right: 16px; top: 0; display: flex; gap: 8px; }
+  .redes a, .redes button {
+    width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+    color: #fff; background: var(--verde); text-decoration: none; border: 0; padding: 0; cursor: pointer;
+  }
+  .redes a:hover, .redes button:hover { background: var(--verde-osc); }
+
+  /* Texto de ¿Quiénes somos? (en el modal y en su página) */
+  .quienes-texto p { margin: 0 0 12px; }
+  .quienes-texto p:last-child { margin-bottom: 0; }
+
+  footer { text-align: center; color: var(--suave); font-size: .85rem; padding: 0 16px 100px; }
+
+  /* Con poco ancho, sellos y botones no entran al costado del logo: van en una fila debajo */
+  @media (max-width: 640px) {
+    header { padding: 14px 0; }
+    header .envoltura {
+      display: grid; grid-template-columns: 1fr auto; grid-template-areas: "logo logo" "sellos redes";
+      row-gap: 12px; align-items: center;
+    }
+    .marca { grid-area: logo; justify-self: center; }
+    .sellos { grid-area: sellos; position: static; transform: none; flex-direction: row; gap: 14px; font-size: .85rem; }
+    .sellos li { gap: 5px; }
+    .sellos img, .sellos .copo { width: 22px; height: 22px; }
+    .sellos .copo { font-size: 1.1rem; }
+    .redes { grid-area: redes; position: static; }
+  }
+  @media (max-width: 360px) { .logo { width: 116px !important; } }
+  @media (max-width: 480px) {
+    .logo { width: 140px; }
+    .redes { gap: 6px; }
+    .redes a, .redes button { width: 34px; height: 34px; }
+    .redes svg { width: 18px; height: 18px; }
+  }

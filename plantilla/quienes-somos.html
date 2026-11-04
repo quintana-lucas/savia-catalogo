@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{{ROBOTS}}
+<title>{{TITULO}}</title>
+<meta name="description" content="{{DESCRIPCION}}">
+{{METADATOS}}
+<link rel="icon" href="assets/favicon.ico" sizes="48x48">
+<link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+{{ESTILOS_BASE}}
+  /* Página de ¿Quiénes somos? (solo si QUIENES_SOMOS=pagina) */
+  main.envoltura { max-width: 720px; padding-top: 24px; padding-bottom: 56px; }
+  .volver { color: var(--verde); font-weight: 800; text-decoration: none; }
+  .volver:hover { text-decoration: underline; }
+  main h1 { font-family: "Fraunces", Georgia, serif; font-size: 2rem; margin: 20px 0 16px; }
+  .quienes-texto {
+    background: var(--papel); border-radius: var(--radio); box-shadow: var(--sombra);
+    padding: 20px 24px; font-size: 1.05rem;
+  }
+  .ir-catalogo {
+    display: inline-block; margin-top: 24px; border-radius: 999px; padding: 10px 20px;
+    background: var(--verde); color: #fff; font-weight: 800; text-decoration: none;
+  }
+  .ir-catalogo:hover { background: var(--verde-osc); }
+  footer { padding-bottom: 32px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="envoltura">
+    {{SELLOS}}
+    <a class="marca" href="./"><img class="logo" src="assets/logo-horizontal.webp" alt="{{NOMBRE}} — volver al catálogo" width="895" height="464"></a>
+    <nav class="redes" aria-label="Redes">{{REDES}}</nav>
+  </div>
+</header>
+
+<main class="envoltura">
+  <a class="volver" href="./">← Volver al catálogo</a>
+  <h1>¿Quiénes somos?</h1>
+  <div class="quienes-texto">{{QUIENES_TEXTO}}</div>
+  <a class="ir-catalogo" href="./">Ver el catálogo</a>
+</main>
+
+<footer>{{NOMBRE}}</footer>
+</body>
+</html>
