@@ -37,8 +37,8 @@
     color: var(--verde); font-weight: 800; font-size: .95rem;
   }
   .sellos li { display: flex; align-items: center; gap: 8px; }
-  .sellos img, .sellos .copo { width: 28px; height: 28px; flex-shrink: 0; }
-  .sellos .copo { display: grid; place-items: center; font-size: 1.35rem; line-height: 1; }
+  .sellos img, .sellos .copo { width: 34px; height: 34px; flex-shrink: 0; }
+  .sellos .copo { display: grid; place-items: center; font-size: 1.6rem; line-height: 1; }
   .redes { position: absolute; right: 16px; top: 0; display: flex; gap: 8px; }
   .redes a, .redes button {
     width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
@@ -62,8 +62,8 @@
     .marca { grid-area: logo; justify-self: center; }
     .sellos { grid-area: sellos; position: static; transform: none; flex-direction: row; gap: 14px; font-size: .85rem; }
     .sellos li { gap: 5px; }
-    .sellos img, .sellos .copo { width: 22px; height: 22px; }
-    .sellos .copo { font-size: 1.1rem; }
+    .sellos img, .sellos .copo { width: 26px; height: 26px; }
+    .sellos .copo { font-size: 1.25rem; }
     .redes { grid-area: redes; position: static; }
   }
   @media (max-width: 360px) { .logo { width: 116px !important; } }

@@ -139,7 +139,7 @@ QUIENES_SVG = (
 # Sellos a la izquierda del logo. IQF: congelado individual rápido (cada pieza por separado).
 SELLOS = (
     '<ul class="sellos" aria-label="Características">'
-    '<li><img src="assets/sin-tacc.svg" alt="" width="28" height="28">Sin TACC</li>'
+    '<li><img src="assets/sin-tacc.png" alt="" width="34" height="34">Sin TACC</li>'
     '<li title="Congelado individual rápido"><span class="copo" aria-hidden="true">❄️</span>IQF</li>'
     "</ul>"
 )
