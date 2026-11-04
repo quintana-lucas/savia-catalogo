@@ -6,6 +6,14 @@
   "mensaje_pedido": "¡Hola! Quiero hacer este pedido:",
   "descripcion": "Catálogo de Savia: frutas, verduras, pulpas, preparados y pastas sin TACC congeladas. Elegí lo que querés y mandanos el pedido por WhatsApp.",
   "aviso": "Tocá «Agregar» en los productos que quieras y ajustá las cantidades con − y +. Cuando termines, tocá «Enviar pedido»: se abre WhatsApp con tu pedido ya escrito, listo para mandarnos. Ahí coordinamos la entrega.",
+  "quienes_somos": [
+    "En Savia encontrás alimentos naturales, nutritivos y reales para cocinar de forma sencilla y práctica. 🌱",
+    "🥦 Frutas y verduras congeladas mediante sistema IQF, que ayuda a conservar su sabor, textura y nutrientes.",
+    "🌱 Medallones, milanesas y nuggets elaborados con ingredientes naturales.",
+    "🍝 Pastas nutritivas, elaboradas con harinas integrales como trigo sarraceno y sorgo.",
+    "✨ Todos nuestros productos son SIN TACC, pensados para disfrutar de una alimentación práctica, rica y consciente. Sin conservantes, sin saborizantes y sin colorantes.",
+    "Savia. Volver a lo simple. Volver a lo real."
+  ],
   "indexar": true,
   "dominio": "savianutre.com.ar"
 }

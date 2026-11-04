@@ -8,6 +8,7 @@ Fuente de productos (en orden de prioridad):
 Otras variables de entorno (las pone la GitHub Action):
   SOLO_SI_CAMBIA=true  no publica si los productos son iguales a los de la página actual.
   FORZAR=true          publica aunque haya muchos menos productos que antes.
+  QUIENES_SOMOS        cómo se muestra «¿Quiénes somos?»: "modal" (por defecto) o "pagina".
 
 Solo usa la biblioteca estándar de Python: no hace falta instalar nada.
 """
@@ -41,6 +42,9 @@ OBLIGATORIAS = ("nombre", "precio")
 PRIMERAS = ("ofertas",)
 # Si quedan menos de esta fracción de los productos publicados, se frena (filas borradas por error).
 MINIMO_RESPECTO_ANTERIOR = 0.5
+# Formas de mostrar «¿Quiénes somos?»; la primera es la que se usa si la variable no está o está mal escrita.
+MODOS_QUIENES = ("modal", "pagina")
+PAGINA_QUIENES = "quienes-somos.html"
 
 
 def normalizar(texto):
@@ -125,26 +129,78 @@ def limpiar_filas(filas):
 
 WA_SVG = '<path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/>'
 IG_SVG = '<path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/>'
+# Ícono "users" de Lucide (lucide.dev, licencia ISC): va con trazo, no con relleno como los de redes.
+QUIENES_SVG = (
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'
+    '<path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+)
+# Sellos a la izquierda del logo. IQF: congelado individual rápido (cada pieza por separado).
+SELLOS = (
+    '<ul class="sellos" aria-label="Características">'
+    '<li><img src="assets/sin-tacc.png" alt="" width="34" height="34">Sin TACC</li>'
+    '<li title="Congelado individual rápido"><span class="copo" aria-hidden="true">❄️</span>IQF</li>'
+    "</ul>"
+)
 
 
-def redes(config):
-    """Íconos del encabezado: Instagram (si está en config) y WhatsApp."""
+def modo_quienes(config):
+    """'modal', 'pagina', o None si config.json no tiene el texto (entonces no aparece el botón)."""
+    if not config.get("quienes_somos"):
+        return None
+    pedido = os.environ.get("QUIENES_SOMOS", "")
+    modo = normalizar(pedido) or MODOS_QUIENES[0]
+    if modo not in MODOS_QUIENES:
+        print(f"::warning::QUIENES_SOMOS={pedido!r} no es válido (usá {' o '.join(MODOS_QUIENES)}). Se usa {MODOS_QUIENES[0]}.")
+        modo = MODOS_QUIENES[0]
+    return modo
+
+
+def texto_quienes(config):
+    return "".join(f"<p>{html.escape(parrafo)}</p>" for parrafo in config.get("quienes_somos", []))
+
+
+def modal_quienes(config):
+    return (
+        '<dialog class="modal" id="quienes" aria-labelledby="quienes-titulo"><div class="contenido">'
+        '<button class="cerrar" type="button" aria-label="Cerrar">×</button>'
+        '<h2 id="quienes-titulo">¿Quiénes somos?</h2>'
+        f'<div class="quienes-texto">{texto_quienes(config)}</div>'
+        "</div></dialog>"
+    )
+
+
+def redes(config, quienes=None):
+    """Íconos del encabezado: ¿Quiénes somos? (modal o link a su página), Instagram (si está en config) y WhatsApp."""
+    botones = ""
+    if quienes == "modal":
+        botones = (
+            '<button type="button" data-abrir-quienes aria-haspopup="dialog" aria-label="¿Quiénes somos?" '
+            f'title="¿Quiénes somos?">{QUIENES_SVG}</button>'
+        )
+    elif quienes == "pagina":
+        botones = f'<a href="{PAGINA_QUIENES}" aria-label="¿Quiénes somos?" title="¿Quiénes somos?">{QUIENES_SVG}</a>'
     enlaces = []
     if config.get("instagram"):
         enlaces.append((config["instagram"], "Instagram", IG_SVG))
     enlaces.append((f"https://wa.me/{config['whatsapp']}", "WhatsApp", WA_SVG))
-    return "".join(
+    return botones + "".join(
         f'<a href="{html.escape(url)}" target="_blank" rel="noopener" aria-label="{nombre}" title="{nombre}">'
         f'<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{svg}</svg></a>'
         for url, nombre, svg in enlaces
     )
 
 
-def metadatos(config, titulo):
-    """Canonical, Open Graph (vista previa al compartir el link) y datos estructurados para Google."""
+def metadatos(config, titulo, ruta=""):
+    """Canonical, Open Graph (vista previa al compartir el link) y datos estructurados para Google.
+
+    ruta: la página dentro del sitio ("" es el catálogo). Los datos del negocio van solo en el catálogo.
+    """
     if not config.get("dominio"):
         return ""
     base = f"https://{config['dominio'].strip()}/"
+    url = base + ruta
     imagen = base + "assets/compartir.jpg"
     descripcion = config.get("descripcion") or config.get("eslogan", "")
     negocio = {
@@ -159,17 +215,21 @@ def metadatos(config, titulo):
         "sameAs": [config["instagram"]] if config.get("instagram") else [],
     }
     etiquetas = [
-        f'<link rel="canonical" href="{base}">',
+        f'<link rel="canonical" href="{url}">',
         '<meta property="og:type" content="website">',
         '<meta property="og:locale" content="es_AR">',
         f'<meta property="og:site_name" content="{html.escape(config["nombre"])}">',
         f'<meta property="og:title" content="{html.escape(titulo)}">',
         f'<meta property="og:description" content="{html.escape(descripcion)}">',
-        f'<meta property="og:url" content="{base}">',
+        f'<meta property="og:url" content="{url}">',
         f'<meta property="og:image" content="{imagen}">',
         '<meta property="og:image:width" content="1200">',
         '<meta property="og:image:height" content="630">',
         '<meta name="twitter:card" content="summary_large_image">',
+    ]
+    if ruta:
+        return "\n".join(etiquetas)
+    etiquetas += [
         '<script type="application/ld+json">'
         + json.dumps(negocio, ensure_ascii=False).replace("</", "<\\/")
         + "</script>",
@@ -190,8 +250,8 @@ def metadatos(config, titulo):
     return "\n".join(etiquetas)
 
 
-def robots_y_sitemap(config, ahora):
-    """robots.txt y sitemap.xml: le dicen a Google qué puede indexar y dónde está la página."""
+def robots_y_sitemap(config, ahora, rutas):
+    """robots.txt y sitemap.xml: le dicen a Google qué puede indexar y dónde están las páginas."""
     if not config.get("indexar"):
         (SALIDA / "robots.txt").write_text("User-agent: *\nDisallow: /\n")
         return
@@ -202,10 +262,18 @@ def robots_y_sitemap(config, ahora):
         (SALIDA / "sitemap.xml").write_text(
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-            f"  <url><loc>{base}</loc><lastmod>{ahora.date().isoformat()}</lastmod></url>\n"
-            "</urlset>\n"
+            + "".join(f"  <url><loc>{base}{ruta}</loc><lastmod>{ahora.date().isoformat()}</lastmod></url>\n" for ruta in rutas)
+            + "</urlset>\n"
         )
     (SALIDA / "robots.txt").write_text(robots)
+
+
+def rellenar(plantilla, reemplazos):
+    """Lee plantilla/<plantilla> y cambia cada {{MARCA}} por su valor, en el orden del diccionario."""
+    texto = (RAIZ / "plantilla" / plantilla).read_text(encoding="utf-8")
+    for marca, valor in reemplazos.items():
+        texto = texto.replace(marca, valor)
+    return texto
 
 
 def productos_publicados(config):
@@ -256,17 +324,25 @@ def main():
 
     # Título de la pestaña y del resultado en Google: el nombre solo dice poco.
     titulo = config.get("titulo") or " | ".join(filter(None, [config["nombre"], config.get("eslogan")]))
+    quienes = modo_quienes(config)
+    print(f"¿Quiénes somos?: {quienes or 'sin texto en config.json, no se muestra'}")
 
-    plantilla = (RAIZ / "plantilla" / "index.html").read_text(encoding="utf-8")
-    reemplazos = {
+    # Lo que comparten el catálogo y la página de ¿Quiénes somos?
+    comunes = {
+        "{{ESTILOS_BASE}}": (RAIZ / "plantilla" / "base.css").read_text(encoding="utf-8"),
+        "{{NOMBRE}}": html.escape(config["nombre"]),
+        "{{DESCRIPCION}}": html.escape(config.get("descripcion") or config.get("eslogan", "")),
+        "{{SELLOS}}": SELLOS,
+        "{{ROBOTS}}": "" if config.get("indexar") else '<meta name="robots" content="noindex, nofollow">',
+    }
+    paginas = {"index.html": rellenar("index.html", {
+        **comunes,
         "{{TITULO}}": html.escape(titulo),
         "{{METADATOS}}": metadatos(config, titulo),
-        "{{NOMBRE}}": html.escape(config["nombre"]),
         "{{ESLOGAN}}": html.escape(config.get("eslogan", "")),
-        "{{DESCRIPCION}}": html.escape(config.get("descripcion") or config.get("eslogan", "")),
         "{{AVISO}}": html.escape(config.get("aviso", "")),
-        "{{REDES}}": redes(config),
-        "{{ROBOTS}}": "" if config.get("indexar") else '<meta name="robots" content="noindex, nofollow">',
+        "{{REDES}}": redes(config, quienes),
+        "{{MODAL_QUIENES}}": modal_quienes(config) if quienes == "modal" else "",
         "{{ACTUALIZADO}}": ahora.strftime("%d/%m/%Y %H:%M"),
         "{{DATOS}}": json.dumps(
             {
@@ -277,14 +353,22 @@ def main():
             },
             ensure_ascii=False,
         ).replace("</", "<\\/"),
-    }
-    for marca, valor in reemplazos.items():
-        plantilla = plantilla.replace(marca, valor)
+    })}
+    if quienes == "pagina":
+        titulo_quienes = f"¿Quiénes somos? | {config['nombre']}"
+        paginas[PAGINA_QUIENES] = rellenar(PAGINA_QUIENES, {
+            **comunes,
+            "{{TITULO}}": html.escape(titulo_quienes),
+            "{{METADATOS}}": metadatos(config, titulo_quienes, PAGINA_QUIENES),
+            "{{REDES}}": redes(config),  # sin el botón de ¿Quiénes somos?: ya se está en esa página
+            "{{QUIENES_TEXTO}}": texto_quienes(config),
+        })
 
     if SALIDA.exists():
         shutil.rmtree(SALIDA)
     SALIDA.mkdir()
-    (SALIDA / "index.html").write_text(plantilla, encoding="utf-8")
+    for nombre, contenido in paginas.items():
+        (SALIDA / nombre).write_text(contenido, encoding="utf-8")
     # Copia de los productos publicados: la próxima corrida la compara con la planilla.
     (SALIDA / "productos.json").write_text(json.dumps(productos, ensure_ascii=False), encoding="utf-8")
     shutil.copytree(RAIZ / "img", SALIDA / "img")
@@ -293,7 +377,7 @@ def main():
     shutil.copy(RAIZ / "assets" / "favicon.ico", SALIDA / "favicon.ico")
     (SALIDA / ".nojekyll").touch()
 
-    robots_y_sitemap(config, ahora)
+    robots_y_sitemap(config, ahora, ["" if nombre == "index.html" else nombre for nombre in paginas])
 
     if config.get("dominio"):
         (SALIDA / "CNAME").write_text(config["dominio"].strip() + "\n")

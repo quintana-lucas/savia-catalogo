@@ -51,6 +51,9 @@ jobs:
           # (así la fecha de "Catálogo actualizado" sigue siendo la real).
           SOLO_SI_CAMBIA: ${{ github.event_name == 'schedule' }}
           FORZAR: ${{ inputs.forzar }}
+          # Variable de repositorio QUIENES_SOMOS: "modal" (botón que abre un cartel,
+          # es lo que se usa si no está) o "pagina" (link a quienes-somos.html).
+          QUIENES_SOMOS: ${{ vars.QUIENES_SOMOS }}
         run: python build.py
 
       - if: steps.build.outputs.publicar == 'true'
