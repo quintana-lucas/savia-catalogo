@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{{ROBOTS}}
+<title>{{TITULO}}</title>
+<meta name="description" content="{{DESCRIPCION}}">
+{{METADATOS}}
+<link rel="icon" href="assets/favicon.ico" sizes="48x48">
+<link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+{{FUENTES}}
+<style>
+{{ESTILOS_BASE}}
+  /* Módulo opcional de pedidos especiales / catering (solo si "pedidos_especiales.activo" en config.json) */
+  main.envoltura { max-width: 720px; padding-top: 24px; padding-bottom: 56px; }
+  .volver { color: var(--principal); font-weight: 800; text-decoration: none; }
+  .volver:hover { text-decoration: underline; }
+  main h1 { font-family: var(--fuente-titulos), Georgia, serif; font-size: 2rem; margin: 20px 0 8px; }
+  .intro { color: var(--suave); margin: 0 0 20px; }
+  form {
+    background: var(--papel); border-radius: var(--radio); box-shadow: var(--sombra);
+    padding: 20px 24px; display: grid; gap: 16px;
+  }
+  .fila { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  label, legend { font-weight: 800; display: block; margin-bottom: 6px; }
+  .opcional { font-weight: 400; color: var(--suave); }
+  input, select, textarea {
+    width: 100%; font: inherit; color: var(--tinta); background: var(--papel);
+    border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px;
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  fieldset { border: 0; margin: 0; padding: 0; }
+  .opciones { display: grid; gap: 8px; }
+  .opcion {
+    display: flex; gap: 12px; align-items: flex-start; font-weight: 400; margin: 0;
+    border: 1px solid var(--linea); border-radius: 12px; padding: 12px; cursor: pointer;
+  }
+  .opcion:has(input:checked) { border-color: var(--principal); box-shadow: 0 0 0 1px var(--principal); }
+  .opcion input { width: auto; margin-top: 4px; accent-color: var(--principal); }
+  .opcion strong { display: block; }
+  .opcion small { color: var(--suave); }
+  .opcion .precio { margin-left: auto; font-weight: 800; white-space: nowrap; }
+  .estimado {
+    background: var(--fondo); border-left: 4px solid var(--secundario); border-radius: 10px;
+    padding: 12px 16px; display: none;
+  }
+  .estimado.visible { display: block; }
+  .estimado strong { font-size: 1.3rem; display: block; }
+  .estimado small { color: var(--suave); }
+  .btn {
+    border: 0; border-radius: 999px; padding: 12px 20px; font: inherit; font-weight: 800; cursor: pointer;
+    background: #25d366; color: #0b3d20; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn:hover { background: #1fbe5b; }
+  .error { color: var(--alerta); font-weight: 600; margin: 0; display: none; }
+  .error.visible { display: block; }
+  footer { padding-bottom: 32px; }
+  @media (max-width: 480px) {
+    form { padding: 16px; }
+    .fila { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="envoltura">
+    {{SELLOS}}
+    <a class="marca" href="./"><img class="logo" src="{{LOGO}}" alt="{{NOMBRE}} — volver al catálogo" width="{{LOGO_ANCHO}}" height="{{LOGO_ALTO}}"></a>
+    <nav class="redes" aria-label="Redes">{{REDES}}</nav>
+  </div>
+</header>
+
+<main class="envoltura">
+  <a class="volver" href="./">← Volver al catálogo</a>
+  <h1>{{PEDIDOS_TITULO}}</h1>
+  <p class="intro">{{PEDIDOS_TEXTO}}</p>
+
+  <form id="form" novalidate>
+    <div>
+      <label for="nombre">Tu nombre</label>
+      <input id="nombre" name="nombre" autocomplete="name" required>
+    </div>
+    <div class="fila">
+      <div>
+        <label for="tipo">¿Qué necesitás?</label>
+        <select id="tipo" name="tipo">{{PEDIDOS_TIPOS}}</select>
+      </div>
+      <div>
+        <label for="fecha">Fecha <span class="opcional">(aprox.)</span></label>
+        <input id="fecha" name="fecha" type="date">
+      </div>
+    </div>
+    <div class="fila">
+      <div>
+        <label for="personas">Cantidad de personas</label>
+        <input id="personas" name="personas" type="number" inputmode="numeric" min="1" step="1">
+      </div>
+      <div>
+        <label for="zona">Zona o dirección <span class="opcional">(opcional)</span></label>
+        <input id="zona" name="zona" autocomplete="address-level2">
+      </div>
+    </div>
+    <fieldset id="bloque-opciones" hidden>
+      <legend>Elegí una opción</legend>
+      <div class="opciones" id="opciones"></div>
+    </fieldset>
+    <div class="estimado" id="estimado" aria-live="polite"></div>
+    <div>
+      <label for="detalle">Contanos más <span class="opcional">(menú, restricciones, horario…)</span></label>
+      <textarea id="detalle" name="detalle"></textarea>
+    </div>
+    <p class="error" id="error" role="alert"></p>
+    <button class="btn" type="submit">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>
+      Enviar consulta por WhatsApp
+    </button>
+  </form>
+</main>
+
+<footer>{{NOMBRE}}</footer>
+
+<script id="datos" type="application/json">{{DATOS}}</script>
+<script>
+(function () {
+  const DATOS = JSON.parse(document.getElementById("datos").textContent);
+  const pesos = n => "$" + Math.round(n).toLocaleString("es-AR");
+  const esc = s => String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const $ = id => document.getElementById(id);
+  const minimo = DATOS.minimo_personas || 1;
+  $("personas").min = minimo;
+  $("personas").placeholder = minimo > 1 ? `Mínimo ${minimo}` : "";
+
+  // Cotizador: si config.json trae opciones con precio por persona, se muestra un total estimado.
+  if (DATOS.opciones.length) {
+    $("bloque-opciones").hidden = false;
+    $("opciones").innerHTML = DATOS.opciones.map((o, i) => `
+      <label class="opcion">
+        <input type="radio" name="opcion" value="${i}" ${i === 0 ? "checked" : ""}>
+        <span><strong>${esc(o.nombre)}</strong>${o.detalle ? `<small>${esc(o.detalle)}</small>` : ""}</span>
+        ${o.precio_por_persona ? `<span class="precio">${pesos(o.precio_por_persona)} <small>/ persona</small></span>` : ""}
+      </label>`).join("");
+  }
+
+  function opcionElegida() {
+    const marcada = document.querySelector("input[name=opcion]:checked");
+    return marcada ? DATOS.opciones[+marcada.value] : null;
+  }
+  function estimado() {
+    const o = opcionElegida();
+    const personas = parseInt($("personas").value, 10);
+    if (!o || !o.precio_por_persona || !(personas >= minimo)) return null;
+    return o.precio_por_persona * personas;
+  }
+  function actualizar() {
+    const total = estimado();
+    const caja = $("estimado");
+    caja.classList.toggle("visible", total != null);
+    if (total != null) caja.innerHTML = `Presupuesto estimado<strong>${pesos(total)}</strong><small>Es orientativo: lo confirmamos por WhatsApp según el menú, la fecha y la entrega.</small>`;
+  }
+  $("form").addEventListener("input", actualizar);
+
+  $("form").addEventListener("submit", e => {
+    e.preventDefault();
+    const nombre = $("nombre").value.trim();
+    const personas = parseInt($("personas").value, 10);
+    const error = $("error");
+    let falta = "";
+    if (!nombre) falta = "Decinos tu nombre.";
+    else if (!(personas >= minimo)) falta = minimo > 1 ? `El mínimo es de ${minimo} personas.` : "Indicá para cuántas personas es.";
+    error.textContent = falta;
+    error.classList.toggle("visible", !!falta);
+    if (falta) return;
+
+    const o = opcionElegida();
+    const total = estimado();
+    const fecha = $("fecha").value ? $("fecha").value.split("-").reverse().join("/") : "";
+    const lineas = [
+      `• Nombre: ${nombre}`,
+      `• Tipo: ${$("tipo").value}`,
+      fecha && `• Fecha: ${fecha}`,
+      `• Personas: ${personas}`,
+      o && `• Opción: ${o.nombre}`,
+      $("zona").value.trim() && `• Zona: ${$("zona").value.trim()}`,
+      $("detalle").value.trim() && `• Detalle: ${$("detalle").value.trim()}`,
+      total != null && `\nPresupuesto estimado: ${pesos(total)} (a confirmar)`,
+    ].filter(Boolean);
+    const texto = `${DATOS.mensaje}\n\n${lineas.join("\n")}`;
+    window.open(`https://wa.me/${DATOS.whatsapp}?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
+  });
+  actualizar();
+})();
+</script>
+</body>
+</html>

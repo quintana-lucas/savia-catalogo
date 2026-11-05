@@ -11,13 +11,14 @@
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+{{FUENTES}}
 <style>
 {{ESTILOS_BASE}}
   /* Barra de filtros */
   .barra {
     position: sticky; top: 0; z-index: 5;
-    background: rgba(243,246,238,.92);
+    background: var(--fondo);
+    background: color-mix(in srgb, var(--fondo) 92%, transparent);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--linea);
   }
@@ -39,11 +40,11 @@
   /* Catálogo */
   main.envoltura { padding-top: 24px; padding-bottom: 56px; }
   .aviso {
-    background: var(--papel); border-left: 4px solid var(--verde-claro);
+    background: var(--papel); border-left: 4px solid var(--secundario);
     padding: 12px 16px; border-radius: 10px; margin-bottom: 24px; color: var(--suave);
   }
   h2.cat {
-    font-family: "Fraunces", Georgia, serif; font-size: 1.6rem;
+    font-family: var(--fuente-titulos), Georgia, serif; font-size: 1.6rem;
     margin: 32px 0 14px; display: flex; align-items: center; gap: 10px;
   }
   .grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
@@ -55,13 +56,13 @@
   .btn-info, .globo-info { display: none; }
   .foto {
     aspect-ratio: 4 / 3; display: grid; place-items: center; position: relative; overflow: hidden; flex-shrink: 0;
-    font-size: 4rem; background: linear-gradient(160deg, #f8faf4, #e8eedd);
+    font-size: 4rem; background: color-mix(in srgb, var(--fondo) 70%, var(--linea));
   }
   /* Las fotos son de paquetes enteros: se muestran completas sobre blanco, sin recortar. */
   .foto:has(img) { background: #fff; }
   /* El emoji va siempre debajo de la foto y se muestra solo si la imagen no carga (link caído, archivo borrado) */
   .foto:has(img) .sin-foto { display: none; }
-  .foto.rota { background: linear-gradient(160deg, #f8faf4, #e8eedd); }
+  .foto.rota { background: color-mix(in srgb, var(--fondo) 70%, var(--linea)); }
   .foto.rota img { display: none; }
   .foto.rota .sin-foto { display: inline; }
   /* Posición absoluta: Safari de iOS viejos calculaba mal el 100% de alto dentro de la grilla y la foto se salía */
@@ -75,10 +76,10 @@
   .precio.consultar { font-size: .95rem; color: var(--suave); }
   .btn {
     border: 0; border-radius: 999px; padding: 9px 16px; font: inherit; font-weight: 800;
-    background: var(--verde); color: #fff; cursor: pointer;
+    background: var(--principal); color: #fff; cursor: pointer;
   }
-  .btn:hover { background: var(--verde-osc); }
-  .cantidad { display: flex; align-items: center; gap: 4px; background: var(--hielo); border-radius: 999px; padding: 3px; }
+  .btn:hover { background: var(--principal-osc); }
+  .cantidad { display: flex; align-items: center; gap: 4px; background: var(--fondo); border-radius: 999px; padding: 3px; }
   .cantidad button {
     width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--papel);
     font-size: 1.1rem; font-weight: 800; cursor: pointer; color: var(--tinta);
@@ -87,10 +88,19 @@
   .agotado { opacity: .55; }
   .agotado .foto { filter: grayscale(1); }
   .etiqueta-agotado {
-    font-size: .8rem; font-weight: 800; color: var(--fruta);
+    font-size: .8rem; font-weight: 800; color: var(--alerta);
     text-transform: uppercase; letter-spacing: .04em;
   }
   .vacio { text-align: center; color: var(--suave); padding: 40px 0; }
+
+  /* Aviso de pedidos especiales / catering (solo si el módulo está activo en config.json) */
+  .banner-pedidos {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    background: var(--papel); border: 1px solid var(--linea); border-radius: 12px;
+    padding: 12px 16px; margin: -8px 0 24px;
+  }
+  .banner-pedidos p { margin: 0; font-weight: 600; }
+  .banner-pedidos a { text-decoration: none; }
 
   /* Pedido flotante */
   .pedido {
@@ -113,12 +123,12 @@
     border: 0; border-radius: var(--radio); padding: 0;
     color: var(--tinta); background: var(--papel); box-shadow: 0 10px 40px rgba(0,0,0,.3);
   }
-  .modal::backdrop { background: rgba(31,42,30,.55); }
+  .modal::backdrop { background: rgba(0,0,0,.5); }
   .modal .contenido { padding: 24px; }
-  .modal h2 { font-family: "Fraunces", Georgia, serif; font-size: 1.6rem; margin: 0 40px 14px 0; }
+  .modal h2 { font-family: var(--fuente-titulos), Georgia, serif; font-size: 1.6rem; margin: 0 40px 14px 0; }
   .modal .cerrar {
     position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%;
-    border: 0; background: var(--hielo); color: var(--tinta); font-size: 1.3rem; line-height: 1; cursor: pointer;
+    border: 0; background: var(--fondo); color: var(--tinta); font-size: 1.3rem; line-height: 1; cursor: pointer;
   }
   .modal .cerrar:hover { background: var(--linea); }
 
@@ -131,10 +141,10 @@
     .btn-info {
       display: grid; place-items: center; position: absolute; top: 6px; right: 6px; z-index: 3;
       width: 36px; height: 36px; border: 0; background: none; padding: 0; cursor: pointer;
-      color: var(--verde);  /* el borde del ícono */
+      color: var(--principal);  /* el borde del ícono */
     }
     .btn-info circle { fill: var(--papel); }  /* relleno blanco para que se lea sobre la foto */
-    .btn-info[aria-expanded="true"] circle { fill: var(--verde); }
+    .btn-info[aria-expanded="true"] circle { fill: var(--principal); }
     .btn-info[aria-expanded="true"] path { stroke: var(--papel); }
     .globo-info {
       position: absolute; top: 46px; left: 8px; right: 8px; z-index: 2;
@@ -162,7 +172,7 @@
 <header>
   <div class="envoltura">
     {{SELLOS}}
-    <h1 class="marca"><img class="logo" src="assets/logo-horizontal.webp" alt="{{NOMBRE}}" width="895" height="464"></h1>
+    <h1 class="marca"><img class="logo" src="{{LOGO}}" alt="{{NOMBRE}}" width="{{LOGO_ANCHO}}" height="{{LOGO_ALTO}}"></h1>
     <nav class="redes" aria-label="Redes">{{REDES}}</nav>
   </div>
 </header>
@@ -176,10 +186,11 @@
 
 <main class="envoltura">
   <div class="aviso">{{AVISO}}</div>
+{{BANNER_PEDIDOS}}
   <div id="catalogo"></div>
 </main>
 
-<footer>Catálogo actualizado el {{ACTUALIZADO}} · Precios sujetos a disponibilidad</footer>
+<footer>Catálogo actualizado el {{ACTUALIZADO}}{{PIE}}</footer>
 {{MODAL_QUIENES}}
 
 <div class="pedido" id="pedido" aria-live="polite">
@@ -195,27 +206,20 @@
 <script>
 (function () {
   const DATOS = JSON.parse(document.getElementById("datos").textContent);
-  // Se revisan en orden: primero los elaborados, después frutas y verduras.
-  // "banana" va antes que "anana" porque la contiene.
-  const EMOJIS = {
-    sopa: "🥣", crema: "🥣", hamburguesa: "🍔", medallon: "🥙", croqueta: "🧆", bocadito: "🧆",
-    empanada: "🥟", tarta: "🥧", pizza: "🍕", ravioles: "🥟", nuggets: "🧆",
-    frutilla: "🍓", arandano: "🫐", frutos: "🫐", frambuesa: "🫐", mango: "🥭", banana: "🍌", anana: "🍍",
-    durazno: "🍑", cereza: "🍒", manzana: "🍎", pera: "🍐", uva: "🍇", kiwi: "🥝",
-    palta: "🥑", espinaca: "🥬", acelga: "🥬", brocoli: "🥦", coliflor: "🥦", choclo: "🌽",
-    arveja: "🫛", chaucha: "🫛", zanahoria: "🥕", morron: "🫑", papa: "🥔", cebolla: "🧅",
-    hongo: "🍄", champi: "🍄", berenjena: "🍆", tomate: "🍅", mix: "🥗"
-  };
-  const EMOJI_CAT = { ofertas: "🔥", frutas: "🍓", verduras: "🥦", elaborados: "🍲", pulpas: "🥤", preparados: "🌱", pastas: "🍝" };
+  const sinTildes = s => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  // Emojis de config.json: se muestran cuando un producto no tiene foto (o no carga) y al lado de cada categoría.
+  // Para el producto se revisan las claves en orden y gana la primera que esté en el nombre.
+  const EMOJIS = DATOS.emojis_producto || {};
+  const EMOJI_CAT = Object.fromEntries(Object.entries(DATOS.emojis_categoria || {}).map(([k, v]) => [sinTildes(k), v]));
+  const EMOJI_DEFECTO = DATOS.emoji_por_defecto || "🛒";
 
-  const sinTildes = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const pesos = n => "$" + n.toLocaleString("es-AR");
   const esc = s => String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   function emojiPara(p) {
     const n = sinTildes(p.nombre);
-    for (const clave in EMOJIS) if (n.includes(clave)) return EMOJIS[clave];
-    return EMOJI_CAT[sinTildes(p.categoria)] || "❄️";
+    for (const clave in EMOJIS) if (n.includes(sinTildes(clave))) return EMOJIS[clave];
+    return EMOJI_CAT[sinTildes(p.categoria)] || EMOJI_DEFECTO;
   }
   function fotoPara(p) {
     const emoji = `<span class="sin-foto" aria-hidden="true">${emojiPara(p)}</span>`;
@@ -314,7 +318,7 @@
     cont.innerHTML = cats.map(cat => {
       const items = visibles.filter(p => p.categoria === cat);
       if (!items.length) return "";
-      return `<section><h2 class="cat"><span aria-hidden="true">${EMOJI_CAT[sinTildes(cat)] || "❄️"}</span>${esc(cat)}</h2>
+      return `<section><h2 class="cat"><span aria-hidden="true">${EMOJI_CAT[sinTildes(cat)] || EMOJI_DEFECTO}</span>${esc(cat)}</h2>
         <div class="grilla">${items.map(tarjeta).join("")}</div></section>`;
     }).join("");
   }
@@ -330,9 +334,9 @@
     document.getElementById("resumen").innerHTML =
       `<strong>${pesos(total)}</strong>${parcial ? "+ a consultar · " : ""}${unidades} ${unidades === 1 ? "producto" : "productos"}`;
 
-    // Si un producto está en Ofertas y en su categoría, la marca evita que se confundan las dos líneas
+    // Si un producto está en Ofertas (o en otra categoría destacada) y en la suya, la marca evita que se confundan las dos líneas
     const lineas = items.map(x => `• ${x.c} × ${x.p.nombre}${x.p.presentacion ? " (" + x.p.presentacion + ")" : ""}` +
-      (sinTildes(x.p.categoria) === "ofertas" ? " [oferta]" : "") +
+      (DATOS.repetidos.includes(x.p.categoria) ? ` [${x.p.categoria}]` : "") +
       (x.p.precio != null ? ` — ${pesos(x.c * x.p.precio)}` : " — a consultar"));
     const texto = `${DATOS.mensaje}\n\n${lineas.join("\n")}\n\nTotal estimado: ${pesos(total)}${parcial ? " + productos a consultar" : ""}`;
     document.getElementById("enviar").href = `https://wa.me/${DATOS.whatsapp}?text=${encodeURIComponent(texto)}`;

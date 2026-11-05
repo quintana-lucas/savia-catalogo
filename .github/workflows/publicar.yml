@@ -43,16 +43,14 @@ jobs:
       - name: Generar la página
         id: build
         env:
-          # Si está configurada la variable SHEET_CSV_URL (Settings → Secrets and
-          # variables → Actions → Variables), lee la planilla de Google.
-          # Si no, usa data/productos.csv del repo.
+          # La planilla se configura en config.json ("planilla_csv"). Esta variable
+          # de repositorio es opcional y, si existe, la pisa.
           SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL }}
           # En las corridas automáticas no se republica si nada cambió
           # (así la fecha de "Catálogo actualizado" sigue siendo la real).
           SOLO_SI_CAMBIA: ${{ github.event_name == 'schedule' }}
           FORZAR: ${{ inputs.forzar }}
-          # Variable de repositorio QUIENES_SOMOS: "modal" (botón que abre un cartel,
-          # es lo que se usa si no está) o "pagina" (link a quienes-somos.html).
+          # Opcional: pisa "quienes_somos_modo" de config.json ("modal" o "pagina").
           QUIENES_SOMOS: ${{ vars.QUIENES_SOMOS }}
         run: python build.py
 

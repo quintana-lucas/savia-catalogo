@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """Genera el catálogo estático en _site/.
 
+Todo lo que cambia de un cliente a otro está en config.json (nombre, colores, logo,
+WhatsApp, planilla, textos, módulos). Este archivo no se toca para un cliente nuevo.
+
 Fuente de productos (en orden de prioridad):
-  1. La variable de entorno SHEET_CSV_URL (Google Sheets publicada como CSV).
-  2. El archivo local data/productos.csv.
+  1. La variable de entorno SHEET_CSV_URL (si se quiere pisar la de config.json).
+  2. "planilla_csv" de config.json (Google Sheets publicada como CSV).
+  3. El archivo local data/productos.csv.
 
 Otras variables de entorno (las pone la GitHub Action):
   SOLO_SI_CAMBIA=true  no publica si los productos son iguales a los de la página actual.
   FORZAR=true          publica aunque haya muchos menos productos que antes.
-  QUIENES_SOMOS        cómo se muestra «¿Quiénes somos?»: "modal" (por defecto) o "pagina".
+  QUIENES_SOMOS        pisa "quienes_somos_modo" de config.json: "modal" o "pagina".
 
 Solo usa la biblioteca estándar de Python: no hace falta instalar nada.
 """
@@ -38,13 +42,26 @@ COLUMNAS = {
 }
 # Sin estas columnas la página saldría rota (sin productos o todo en "Consultar").
 OBLIGATORIAS = ("nombre", "precio")
-# Categorías que van siempre primero, en este orden, cuando tienen productos (sin tildes ni mayúsculas).
-PRIMERAS = ("ofertas",)
 # Si quedan menos de esta fracción de los productos publicados, se frena (filas borradas por error).
 MINIMO_RESPECTO_ANTERIOR = 0.5
 # Formas de mostrar «¿Quiénes somos?»; la primera es la que se usa si la variable no está o está mal escrita.
 MODOS_QUIENES = ("modal", "pagina")
 PAGINA_QUIENES = "quienes-somos.html"
+PAGINA_PEDIDOS = "pedidos-especiales.html"
+# Claves de config.json sin las que no se puede armar la página.
+CONFIG_OBLIGATORIAS = ("nombre", "whatsapp")
+# Colores de config.json -> variables CSS que usan las plantillas.
+COLORES = {
+    "principal": ("--principal", "#1d5e24"),
+    "principal_oscuro": ("--principal-osc", "#154519"),
+    "secundario": ("--secundario", "#89b335"),
+    "fondo": ("--fondo", "#f3f6ee"),
+    "tarjetas": ("--papel", "#ffffff"),
+    "texto": ("--tinta", "#1f2a1e"),
+    "texto_suave": ("--suave", "#5e6b5a"),
+    "bordes": ("--linea", "#dde5d2"),
+    "alerta": ("--alerta", "#d9485f"),
+}
 
 
 def normalizar(texto):
@@ -52,8 +69,19 @@ def normalizar(texto):
     return texto.strip().translate(reemplazos).lower()
 
 
-def leer_csv():
-    url = os.environ.get("SHEET_CSV_URL", "").strip()
+def leer_config():
+    config = json.loads((RAIZ / "config.json").read_text(encoding="utf-8"))
+    faltan = [c for c in CONFIG_OBLIGATORIAS if not str(config.get(c, "")).strip()]
+    if faltan:
+        sys.exit(f"ERROR: en config.json faltan {', '.join(faltan)}. No se publica nada.")
+    config["whatsapp"] = "".join(ch for ch in str(config["whatsapp"]) if ch.isdigit())
+    if config["whatsapp"].startswith("54911000000"):
+        print("::warning::El WhatsApp de config.json es el de ejemplo: cambialo por el del cliente.")
+    return config
+
+
+def leer_csv(config):
+    url = (os.environ.get("SHEET_CSV_URL", "") or config.get("planilla_csv", "")).strip()
     if url:
         print(f"Descargando planilla desde {url[:60]}...")
         with urllib.request.urlopen(url, timeout=30) as r:
@@ -99,12 +127,13 @@ def revisar_fotos(productos):
             p["foto"] = ""
 
 
-def ordenar_categorias(productos):
-    """Categorías en el orden de la planilla, salvo las de PRIMERAS, que van adelante si tienen productos."""
+def ordenar_categorias(productos, config):
+    """Categorías en el orden de la planilla, salvo las de "categorias_primero", que van adelante si tienen productos."""
+    primeras = [normalizar(c) for c in config.get("categorias_primero", [])]
     categorias = list(dict.fromkeys(p["categoria"] for p in productos))
     return sorted(
         categorias,
-        key=lambda c: PRIMERAS.index(normalizar(c)) if normalizar(c) in PRIMERAS else len(PRIMERAS),
+        key=lambda c: primeras.index(normalizar(c)) if normalizar(c) in primeras else len(primeras),
     )
 
 
@@ -136,20 +165,58 @@ QUIENES_SVG = (
     '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'
     '<path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
 )
-# Sellos a la izquierda del logo. IQF: congelado individual rápido (cada pieza por separado).
-SELLOS = (
-    '<ul class="sellos" aria-label="Características">'
-    '<li><img src="assets/sin-tacc.png" alt="" width="34" height="34">Sin TACC</li>'
-    '<li title="Congelado individual rápido"><span class="copo" aria-hidden="true">❄️</span>IQF</li>'
-    "</ul>"
+# Ícono "message-square-text" de Lucide: pedidos especiales y catering.
+PEDIDOS_SVG = (
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'
+    '<path d="M13 8H7"/><path d="M17 12H7"/></svg>'
 )
+
+
+def sellos(config):
+    """Sellos a la izquierda del logo (por ejemplo "Sin TACC"). Cada uno con imagen o emoji; vacío si no hay."""
+    items = []
+    for s in config.get("sellos", []):
+        if s.get("imagen"):
+            icono = f'<img src="{html.escape(s["imagen"])}" alt="" width="34" height="34">'
+        else:
+            icono = f'<span class="copo" aria-hidden="true">{html.escape(s.get("emoji", "✔️"))}</span>'
+        titulo = f' title="{html.escape(s["detalle"])}"' if s.get("detalle") else ""
+        items.append(f"<li{titulo}>{icono}{html.escape(s['texto'])}</li>")
+    return f'<ul class="sellos" aria-label="Características">{"".join(items)}</ul>' if items else ""
+
+
+def estilos_marca(config):
+    """Variables CSS con los colores y las fuentes de config.json."""
+    colores = config.get("colores", {})
+    fuentes = config.get("fuentes", {})
+    lineas = [f"    {var}: {colores.get(clave, defecto)};" for clave, (var, defecto) in COLORES.items()]
+    lineas.append(f'    --fuente-titulos: "{fuentes.get("titulos", "Fraunces")}";')
+    lineas.append(f'    --fuente-texto: "{fuentes.get("texto", "Nunito Sans")}";')
+    return "  :root {\n" + "\n".join(lineas) + "\n  }\n"
+
+
+def link_fuentes(config):
+    """Link a Google Fonts con las dos fuentes de config.json."""
+    fuentes = config.get("fuentes", {})
+    familias = dict.fromkeys([fuentes.get("titulos", "Fraunces"), fuentes.get("texto", "Nunito Sans")])
+    query = "&".join(f"family={f.replace(' ', '+')}:wght@400;600;800" for f in familias)
+    return (
+        '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+        f'<link href="https://fonts.googleapis.com/css2?{query}&display=swap" rel="stylesheet">'
+    )
+
+
+def pedidos_activo(config):
+    return bool(config.get("pedidos_especiales", {}).get("activo"))
 
 
 def modo_quienes(config):
     """'modal', 'pagina', o None si config.json no tiene el texto (entonces no aparece el botón)."""
     if not config.get("quienes_somos"):
         return None
-    pedido = os.environ.get("QUIENES_SOMOS", "")
+    pedido = os.environ.get("QUIENES_SOMOS", "") or config.get("quienes_somos_modo", "")
     modo = normalizar(pedido) or MODOS_QUIENES[0]
     if modo not in MODOS_QUIENES:
         print(f"::warning::QUIENES_SOMOS={pedido!r} no es válido (usá {' o '.join(MODOS_QUIENES)}). Se usa {MODOS_QUIENES[0]}.")
@@ -171,8 +238,9 @@ def modal_quienes(config):
     )
 
 
-def redes(config, quienes=None):
-    """Íconos del encabezado: ¿Quiénes somos? (modal o link a su página), Instagram (si está en config) y WhatsApp."""
+def redes(config, quienes=None, pedidos=False):
+    """Íconos del encabezado: ¿Quiénes somos? (modal o link a su página), pedidos especiales (si el módulo
+    está activo), Instagram (si está en config) y WhatsApp."""
     botones = ""
     if quienes == "modal":
         botones = (
@@ -181,6 +249,9 @@ def redes(config, quienes=None):
         )
     elif quienes == "pagina":
         botones = f'<a href="{PAGINA_QUIENES}" aria-label="¿Quiénes somos?" title="¿Quiénes somos?">{QUIENES_SVG}</a>'
+    if pedidos:
+        titulo = html.escape(config["pedidos_especiales"].get("titulo", "Pedidos especiales"))
+        botones += f'<a href="{PAGINA_PEDIDOS}" aria-label="{titulo}" title="{titulo}">{PEDIDOS_SVG}</a>'
     enlaces = []
     if config.get("instagram"):
         enlaces.append((config["instagram"], "Instagram", IG_SVG))
@@ -268,6 +339,39 @@ def robots_y_sitemap(config, ahora, rutas):
     (SALIDA / "robots.txt").write_text(robots)
 
 
+def banner_pedidos(config):
+    modulo = config["pedidos_especiales"]
+    texto = modulo.get("banner", "¿Catering, un evento o un pedido especial?")
+    return (
+        f'<div class="banner-pedidos"><p>{html.escape(texto)}</p>'
+        f'<a class="btn" href="{PAGINA_PEDIDOS}">{html.escape(modulo.get("boton", "Pedir presupuesto"))}</a></div>'
+    )
+
+
+def pagina_pedidos(config, comunes, quienes):
+    """Módulo opcional: formulario de pedidos especiales / catering con cotizador. Arma un mensaje de WhatsApp."""
+    modulo = config["pedidos_especiales"]
+    titulo = f"{modulo.get('titulo', 'Pedidos especiales')} | {config['nombre']}"
+    datos = {
+        "whatsapp": config["whatsapp"],
+        "mensaje": modulo.get("mensaje", "¡Hola! Quiero consultar por un pedido especial:"),
+        "opciones": modulo.get("opciones", []),
+        "minimo_personas": modulo.get("minimo_personas", 1),
+    }
+    return rellenar(PAGINA_PEDIDOS, {
+        **comunes,
+        "{{TITULO}}": html.escape(titulo),
+        "{{METADATOS}}": metadatos(config, titulo, PAGINA_PEDIDOS),
+        "{{REDES}}": redes(config, quienes if quienes == "pagina" else None),
+        "{{PEDIDOS_TITULO}}": html.escape(modulo.get("titulo", "Pedidos especiales")),
+        "{{PEDIDOS_TEXTO}}": html.escape(modulo.get("texto", "")),
+        "{{PEDIDOS_TIPOS}}": "".join(
+            f"<option>{html.escape(tipo)}</option>" for tipo in modulo.get("tipos", ["Pedido especial", "Catering", "Otro"])
+        ),
+        "{{DATOS}}": json.dumps(datos, ensure_ascii=False).replace("</", "<\\/"),
+    })
+
+
 def rellenar(plantilla, reemplazos):
     """Lee plantilla/<plantilla> y cambia cada {{MARCA}} por su valor, en el orden del diccionario."""
     texto = (RAIZ / "plantilla" / plantilla).read_text(encoding="utf-8")
@@ -301,8 +405,8 @@ def activa(variable):
 
 
 def main():
-    config = json.loads((RAIZ / "config.json").read_text(encoding="utf-8"))
-    productos = limpiar_filas(leer_csv())
+    config = leer_config()
+    productos = limpiar_filas(leer_csv(config))
     revisar_fotos(productos)
     if not productos:
         sys.exit("ERROR: la planilla no tiene productos. No se publica nada para no dejar la página vacía.")
@@ -319,20 +423,27 @@ def main():
                 "Si fue a propósito, corré la Action a mano tildando «Publicar igual». No se publica nada."
             )
 
-    categorias = ordenar_categorias(productos)
+    categorias = ordenar_categorias(productos, config)
     ahora = datetime.now(timezone(timedelta(hours=-3)))
 
     # Título de la pestaña y del resultado en Google: el nombre solo dice poco.
     titulo = config.get("titulo") or " | ".join(filter(None, [config["nombre"], config.get("eslogan")]))
     quienes = modo_quienes(config)
     print(f"¿Quiénes somos?: {quienes or 'sin texto en config.json, no se muestra'}")
+    pedidos = pedidos_activo(config)
+    print(f"Pedidos especiales: {'activo' if pedidos else 'apagado'}")
+    logo = config.get("logo", {})
 
     # Lo que comparten el catálogo y la página de ¿Quiénes somos?
     comunes = {
-        "{{ESTILOS_BASE}}": (RAIZ / "plantilla" / "base.css").read_text(encoding="utf-8"),
+        "{{ESTILOS_BASE}}": estilos_marca(config) + (RAIZ / "plantilla" / "base.css").read_text(encoding="utf-8"),
+        "{{FUENTES}}": link_fuentes(config),
+        "{{LOGO}}": html.escape(logo.get("archivo", "assets/logo.svg")),
+        "{{LOGO_ANCHO}}": str(logo.get("ancho", 800)),
+        "{{LOGO_ALTO}}": str(logo.get("alto", 300)),
         "{{NOMBRE}}": html.escape(config["nombre"]),
         "{{DESCRIPCION}}": html.escape(config.get("descripcion") or config.get("eslogan", "")),
-        "{{SELLOS}}": SELLOS,
+        "{{SELLOS}}": sellos(config),
         "{{ROBOTS}}": "" if config.get("indexar") else '<meta name="robots" content="noindex, nofollow">',
     }
     paginas = {"index.html": rellenar("index.html", {
@@ -341,15 +452,22 @@ def main():
         "{{METADATOS}}": metadatos(config, titulo),
         "{{ESLOGAN}}": html.escape(config.get("eslogan", "")),
         "{{AVISO}}": html.escape(config.get("aviso", "")),
-        "{{REDES}}": redes(config, quienes),
+        "{{REDES}}": redes(config, quienes, pedidos),
         "{{MODAL_QUIENES}}": modal_quienes(config) if quienes == "modal" else "",
+        "{{BANNER_PEDIDOS}}": banner_pedidos(config) if pedidos else "",
         "{{ACTUALIZADO}}": ahora.strftime("%d/%m/%Y %H:%M"),
+        "{{PIE}}": f" · {html.escape(config['pie'])}" if config.get("pie") else "",
         "{{DATOS}}": json.dumps(
             {
                 "productos": productos,
                 "categorias": categorias,
                 "whatsapp": config["whatsapp"],
                 "mensaje": config.get("mensaje_pedido", "Hola, quiero hacer este pedido:"),
+                "emojis_producto": config.get("emojis_producto", {}),
+                "emojis_categoria": config.get("emojis_categoria", {}),
+                "emoji_por_defecto": config.get("emoji_por_defecto", "🛒"),
+                # Categorías destacadas: si un producto está en una de estas, el mensaje lo marca.
+                "repetidos": [c for c in categorias if normalizar(c) in {normalizar(x) for x in config.get("categorias_primero", [])}],
             },
             ensure_ascii=False,
         ).replace("</", "<\\/"),
@@ -360,9 +478,11 @@ def main():
             **comunes,
             "{{TITULO}}": html.escape(titulo_quienes),
             "{{METADATOS}}": metadatos(config, titulo_quienes, PAGINA_QUIENES),
-            "{{REDES}}": redes(config),  # sin el botón de ¿Quiénes somos?: ya se está en esa página
+            "{{REDES}}": redes(config, pedidos=pedidos),  # sin el botón de ¿Quiénes somos?: ya se está en esa página
             "{{QUIENES_TEXTO}}": texto_quienes(config),
         })
+    if pedidos:
+        paginas[PAGINA_PEDIDOS] = pagina_pedidos(config, comunes, quienes)
 
     if SALIDA.exists():
         shutil.rmtree(SALIDA)

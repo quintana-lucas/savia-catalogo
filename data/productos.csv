@@ -1,42 +1,13 @@
 Categoría,Nombre,Descripción,Presentación,Precio,Disponible,Foto
-Verduras,Acelga,,Bolsa 1 kg,5500,si,acelga.jpg
-Verduras,Arvejas,,Bolsa 1 kg,7750,si,arvejas.jpg
-Verduras,Brócoli,,Bolsa 500 g,4125,si,brocoli.jpg
-Verduras,Cebollas cortadas,,Bolsa 1 kg,6900,si,cebollas-cortadas.jpg
-Verduras,Champignones,Champignones fileteados,Bolsa 1 kg,12225,si,champignones-fileteados.jpg
-Verduras,Chaucha,,Bolsa 1 kg,8850,si,chaucha.jpg
-Verduras,Choclo,,Bolsa 1 kg,6300,si,choclo.jpg
-Verduras,Espárrago,,Bolsa 1 kg,18750,si,esparrago.jpg
-Verduras,Espinaca,,Bolsa 1 kg,6900,si,espinaca.jpg
-Verduras,Morrones rojos picados,,Bolsa 1 kg,11700,si,morrones-rojos-picados.jpg
-Verduras,Mix primavera,"Arvejas, chauchas, choclo y zanahoria.",Bolsa 1 kg,8500,si,mix-primavera.jpg
-Frutas,Ananá,,Bolsa 1 kg,13800,si,anana.jpg
-Frutas,Arándanos,,Bolsa 1 kg,14250,si,arandanos.jpg
-Frutas,Durazno,,Bolsa 1 kg,9000,si,durazno.jpg
-Frutas,Frambuesa,,Bolsa 1 kg,28125,si,frambuesa.jpg
-Frutas,Frutilla,,Bolsa 1 kg,8175,si,frutilla.jpg
-Frutas,Frutos del bosque,"Frambuesas, arándanos y moras.",Bolsa 1 kg,16150,si,frutos-del-bosque.jpg
-Frutas,Frutos rojos,"Frambuesa, frutilla, arándanos y moras.",Bolsa 1 kg,14650,si,frutos-rojos.jpg
-Frutas,Mango,,Bolsa 1 kg,9300,si,mango.jpg
-Frutas,Mora,,Bolsa 1 kg,11100,si,mora.jpg
-Frutas,Palta en cubos,,Bolsa 1 kg,18630,si,palta-en-cubos.jpg
-Pulpas,Lima Tahití,,Bolsa 1 kg,9000,si,lima-tahiti.jpg
-Pulpas,Maracuyá con semilla,,Bolsa 1 kg,12225,si,maracuya-con-semilla.jpg
-Pulpas,Maracuyá sin semilla,,Bolsa 1 kg,13125,si,maracuya-sin-semilla.jpg
-Pulpas,Palta Hass,,Bolsa 1 kg,13000,si,palta-hass.jpg
-Pulpas,Acaí,,Bolsa 1 kg,19950,si,acai.jpg
-Preparados,Medallones de batata y curry,"A base de quinoa, arroz yamaní, verduras, semillas y condimentos.",4 unidades,6200,si,medallones-de-batata-y-curry.jpg
-Preparados,Medallones de espinaca,"A base de quinoa, arroz yamaní, verduras, semillas y condimentos.",4 unidades,6200,si,medallones-de-espinaca.jpg
-Preparados,Medallones de lenteja,"A base de quinoa, arroz yamaní, verduras, semillas y condimentos.",4 unidades,6200,si,medallones-de-lenteja.jpg
-Preparados,Medallones de porotos aduki,"A base de quinoa, arroz yamaní, verduras, semillas y condimentos.",4 unidades,6200,si,medallones-de-porotos-aduki.jpg
-Preparados,Medallones de brócoli,"A base de quinoa, arroz yamaní, verduras, semillas y condimentos.",4 unidades,6200,si,medallones-de-brocoli.jpg
-Preparados,Medallones de mix de hongos,"A base de quinoa, arroz yamaní, verduras, semillas y condimentos.",4 unidades,6500,si,medallones-de-mix-de-hongos.jpg
-Preparados,Nuggets tres cereales,"A base de mijo, arroz, harina de garbanzo, levadura nutricional, verduras y condimentos.",300 g,6000,si,nuggets-tres-cereales.jpg
-Preparados,Nuggets de brócoli,"A base de mijo, arroz, harina de garbanzo, levadura nutricional, verduras y condimentos.",300 g,6000,si,nuggets-de-brocoli.jpg
-Preparados,Milanesas clásicas,"A base de arroz integral, harina de garbanzo, fécula de mandioca, verduras y condimentos.",2 unidades,3000,si,milanesas-clasicas.jpg
-Preparados,Milanesas de espinaca,"A base de arroz integral, harina de garbanzo, fécula de mandioca, verduras y condimentos.",2 unidades,3000,si,milanesas-de-espinaca.jpg
-Pastas,Ravioles de espinaca y ricota,"Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,6000,si,ravioles-de-espinaca-y-ricota.jpg
-Pastas,Ravioles mediterráneos,"Veganos. Berenjena, cebolla, tomate, aceituna y morrón. Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,6000,si,ravioles-mediterraneos.jpg
-Pastas,Ravioles de hongos y queso,"Veganos. Sin TACC. A base de trigo sarraceno, harina de sorgo, fécula de mandioca y almidón de maíz.",360 g,6000,si,ravioles-de-hongos-y-queso.jpg
-Pastas,Ñoquis de papa,Veganos y sin TACC. A base de trigo sarraceno y harina de sorgo.,250 g,3000,si,noquis-de-papa.jpg
-Pastas,Ñoquis de espinaca,Veganos y sin TACC. A base de trigo sarraceno y harina de sorgo.,250 g,3000,si,noquis-de-espinaca.jpg
+Ofertas,Combo semana,"5 viandas a elección, ideal para la oficina",5 porciones,32000,si,
+Tartas,Tarta de jamón y queso,Masa casera y relleno cremoso,Entera (6 porciones),14500,si,
+Tartas,Tarta de verduras,"Acelga, espinaca y cebolla",Entera (6 porciones),13500,si,
+Pastas,Lasagna de carne,Salsa bolognesa y bechamel,Porción 400 g,7800,si,
+Pastas,Ravioles de ricota,Con salsa fileto,Porción 350 g,6900,si,
+Pastas,Ñoquis de papa,,Porción 400 g,5900,no,
+Guisos,Locro,Solo en temporada,Porción 500 g,8200,si,
+Guisos,Guiso de lentejas,,Porción 500 g,6500,si,
+Viandas,Milanesa con puré,,1 porción,7500,si,
+Viandas,Pollo al horno con ensalada,,1 porción,7900,si,
+Postres,Flan casero,Con dulce de leche,Individual,3200,si,
+Postres,Budín de limón,,Entero,,si,

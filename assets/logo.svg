@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+  <!-- Logo de ejemplo: reemplazalo por el del cliente y actualizá "logo" en config.json -->
+  <circle cx="150" cy="150" r="100" fill="#a4471f"/>
+  <text x="150" y="185" font-family="Georgia, serif" font-size="110" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+  <text x="285" y="140" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#2b231e">Cocina</text>
+  <text x="285" y="215" font-family="Georgia, serif" font-size="56" fill="#a4471f">de Ejemplo</text>
+</svg>
